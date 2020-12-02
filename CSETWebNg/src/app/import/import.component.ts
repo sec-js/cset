@@ -325,8 +325,9 @@ export class ImportComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() { 
-    if(this.uploader===undefined)
+    if(this.uploader===undefined){
       this.initalizeUploader();
+    };
   }
 
   ngOnDestroy() {
@@ -335,7 +336,6 @@ export class ImportComponent implements OnInit, OnDestroy {
 
   private initalizeUploader(){
     this.referenceUrl = this.configSvc.apiUrl + 'ReferenceDocuments';
-    
     this.uploader = new FileUploader({
       url: this.referenceUrl,
       authToken: sessionStorage.getItem('userToken')      
@@ -401,11 +401,10 @@ export class ImportComponent implements OnInit, OnDestroy {
         );
       });
     });
-    this.fileOverModuleStateObservable
-      .pipe(debounce(s => timer(s ? 10 : 200)))
-      .subscribe(t => {
-        this.hasModuleBaseDropZoneOver = t;
-      });
+    
+    this.fileOverModuleStateObservable.pipe(debounceTime(10)).subscribe(t => {
+      this.hasModuleBaseDropZoneOver = t;
+    }); 
 
     this.fileOverStateObservable.pipe(debounceTime(10)).subscribe(t => {
       this.hasBaseDropZoneOver = t;
