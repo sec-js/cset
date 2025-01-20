@@ -23,7 +23,7 @@
 ////////////////////////////////
 import { Component, EventEmitter, OnInit, Output, ViewChildren } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
-import { TranslocoService } from "@ngneat/transloco";
+import { TranslocoService } from "@jsverse/transloco";
 import { AlertComponent } from "../../../../dialogs/alert/alert.component";
 import { ConfirmComponent } from "../../../../dialogs/confirm/confirm.component";
 import { EmailComponent } from "../../../../dialogs/email/email.component";
@@ -84,7 +84,7 @@ export class AssessmentContactsComponent implements OnInit {
   }
 
   changeOccurred() {
-    this.triggerChange.next();
+    this.triggerChange.next("Initialized");
   }
 
   moveUser() {
@@ -216,14 +216,31 @@ export class AssessmentContactsComponent implements OnInit {
    * Fires when a contact's edit is complete.
    */
   editContact(contact: User) {
-    this.assessSvc.updateContact(contact).subscribe(data => {
-      if (data && data.userId != contact.userId) {
-        // Update the userId in case changing email linked to new user in backend
-        this.contacts.find(x => x.userId === contact.userId).userId = data.userId;
+    this.assessSvc
+      .getAssessmentContacts()
+      .then((data: AssessmentContactsResponse) => {
+        if (data.currentUserRole == 2) {
+        try {
+          this.assessSvc.updateContact(contact).subscribe(data => {
+            if (data && data.userId != contact.userId) {
+              // Update the userId in case changing email linked to new user in backend
+              this.contacts.find(x => x.userId === contact.userId).userId = data.userId;
+            }
+            this.contactItems.forEach(x => x.enableMyControls = true);
+            this.changeOccurred();
+          });
+        } catch (error) {
+          console.error(error)
+        }
+      } else {
+        console.error("User does not have the correct role to edit")
       }
-      this.contactItems.forEach(x => x.enableMyControls = true);
-      this.changeOccurred();
-    });
+      })
+  }
+
+  refreshContacts(){
+    this.contacts = [] as EditableUser[];
+    this.ngOnInit();
   }
 
   /**

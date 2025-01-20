@@ -21,14 +21,14 @@
 //  SOFTWARE.
 //
 ////////////////////////////////
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { ReportAnalysisService } from '../../../services/report-analysis.service';
 import { ReportService } from '../../../services/report.service';
 import { QuestionsService } from '../../../services/questions.service';
 import { ConfigService } from '../../../services/config.service';
 import { MaturityService } from '../../../services/maturity.service';
 import { AssessmentService } from '../../../services/assessment.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { Title } from '@angular/platform-browser';
 
 @Component({
@@ -38,7 +38,6 @@ import { Title } from '@angular/platform-browser';
 })
 
 export class SdOwnerCommentsMfrComponent {
-  translationTabTitle: any;
   response: any = null;
   remarks: string;
   loading: boolean = false;
@@ -59,16 +58,14 @@ export class SdOwnerCommentsMfrComponent {
   ngOnInit(): void {
     this.loading = true;
     
-    this.translationTabTitle = this.tSvc.selectTranslate('reports.core.rra.cmfr.report title')
-    .subscribe(value =>
-      this.titleService.setTitle(this.tSvc.translate('reports.core.rra.cmfr.report title') + ' - ' + this.configSvc.behaviors.defaultTitle));
+    this.tSvc.selectTranslate('core.rra.cmfr.report title', {}, {scope: 'reports'})
+    .subscribe(title =>
+      this.titleService.setTitle(title + ' - ' + this.configSvc.behaviors.defaultTitle));
   
 
     this.maturitySvc.getCommentsMarked().subscribe(
       (r: any) => {
         this.response = r;
-        console.log("this.response");
-        console.log(this.response);
 
         // until we define a singular version in the maturity model database table, just remove (hopefully) the last 's'
         this.questionAliasSingular = this.response?.information.questionsAlias.slice(0, -1);

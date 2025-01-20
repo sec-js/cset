@@ -20,60 +20,103 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
   SOFTWARE. 
 -------------------------->
+<div *transloco="let t">
+  <div class="d-flex flex-column flex-00a mb-5">
+    <h3 class="text-center">
+      {{t('aggregation.compare.overall average summary')}}
+    </h3>
+    <p>
+      {{t('aggregation.compare.para 1')}}
+    </p>
+    <p>
+      {{t('aggregation.compare.para 2')}}
+    </p>
 
-<div class="chart d-flex flex-column flex-00a mb-5">
-  <h3>
-    Overall Average Summary
-  </h3>
-  <div *ngIf="chartOverallAverage == null">
-    <div class="spinner-container" style="margin: 2em auto">
-      <div style="max-width: 50px; max-height: 50px;"></div>
+    <div *ngIf="chartOverallAverage == null">
+      <div class="spinner-container" style="margin: 2em auto">
+        <div style="max-width: 50px; max-height: 50px;"></div>
+      </div>
+    </div>
+
+    <div class="chart">
+      <canvas id="canvasOverallAverage" style="min-width: 800px; max-width: 800px; margin: 0 auto;">{{
+        chartOverallAverage
+        }}</canvas>
     </div>
   </div>
-  <canvas id="canvasOverallAverage" style="min-width: 800px; max-width: 800px; margin: 0 auto;">{{ chartOverallAverage
-    }}</canvas>
-</div>
 
-<div class="chart d-flex flex-column flex-00a mb-5">
-  <h3>
-    Standards Answers
-  </h3>
-  <div *ngIf="chartStandardsPie == null">
-    <div class="spinner-container" style="margin: 2em auto">
-      <div style="max-width: 50px; max-height: 50px;"></div>
+  <div class="d-flex flex-column flex-00a mb-5">
+    <h3 class="text-center">
+      {{t('aggregation.compare.standards answers')}}
+    </h3>
+
+    <p>
+      {{t('aggregation.compare.para 7')}}
+    </p>
+
+    <div *ngIf="chartStandardsPie == null">
+      <div class="spinner-container" style="margin: 2em auto">
+        <div style="max-width: 50px; max-height: 50px;"></div>
+      </div>
+    </div>
+
+    <div class="chart">
+      <canvas id="canvasStandardsPie" style="min-width: 400px; max-width: 400px; margin: 0 auto;">{{ chartStandardsPie
+        }}</canvas>
+      <div>{{t('aggregation.compare.percentages may not equal 100')}}</div>
     </div>
   </div>
-  <canvas id="canvasStandardsPie" style="min-width: 400px; max-width: 400px; margin: 0 auto;">{{ chartStandardsPie
-    }}</canvas>
-    <div> Percentages may not add up to 100% when comparing assessments due to averaging answers. </div>
-</div>
 
 
-<div *ngIf="showComponents; else notCompatible" class="chart d-flex flex-column flex-00a mb-5">
-  <h3>
-    Components Answers
+  <h3 class="text-center">
+    {{t('aggregation.compare.components answers')}}
   </h3>
-  <div *ngIf="chartComponentsPie == null">
-    <div class="spinner-container" style="margin: 2em auto">
-      <div style="max-width: 50px; max-height: 50px;"></div>
+
+  <div *ngIf="showComponents; else notCompatible" class="d-flex flex-column flex-00a mb-5">
+    <p>
+      {{t('aggregation.compare.para 8')}}
+    </p>
+
+    <div *ngIf="chartComponentsPie == null">
+      <div class="spinner-container" style="margin: 2em auto">
+        <div style="max-width: 50px; max-height: 50px;"></div>
+      </div>
+    </div>
+
+    <div class="chart">
+      <canvas id="canvasComponentsPie" style="min-width: 400px; max-width: 400px; margin: 0 auto;">{{ chartComponentsPie
+        }}</canvas>
+      <div>{{t('aggregation.compare.percentages may not equal 100')}}</div>
     </div>
   </div>
-  <canvas id="canvasComponentsPie" style="min-width: 400px; max-width: 400px; margin: 0 auto;">{{ chartComponentsPie
-    }}</canvas>
-</div>
-<ng-template #notCompatible class="chart d-flex flex-column flex-00a mb-5" > 
-  <h4 style="text-align: center; padding:10%">Comparison visuals are available only when both assessments include network diagrams.</h4>  
-</ng-template>
 
-<div class="chart d-flex flex-column flex-00a mb-5" style="min-height: 200px">
-  <h3>
-    Category Average for All Assessments
-  </h3>
-  <div *ngIf="chartCategoryAverage == null">
-    <div class="spinner-container" style="margin: 2em auto">
-      <div style="max-width: 50px; max-height: 50px;"></div>
+
+  <ng-template #notCompatible>
+    <div class="d-flex flex-column flex-00a mb-5">
+      <p>{{t('aggregation.compare.both need diagrams')}}</p>
+    </div>
+  </ng-template>
+
+
+  <div class="d-flex flex-column flex-00a mb-5" style="min-height: 200px">
+    <h3 class="text-center">
+      {{t('aggregation.compare.category avg all assessments')}}
+    </h3>
+
+    <p>
+      {{t('aggregation.compare.para 9')}}
+    </p>
+
+    <div *ngIf="chartCategoryAverage == null">
+      <div class="spinner-container" style="margin: 2em auto">
+        <div style="max-width: 50px; max-height: 50px;"></div>
+      </div>
+    </div>
+
+    <div class="chart">
+      <canvas id="canvasCategoryAverage" style="min-width: 800px; max-width: 800px; margin: 0 auto;">{{
+        chartCategoryAverage
+        }}</canvas>
     </div>
   </div>
-  <canvas id="canvasCategoryAverage" style="min-width: 800px; max-width: 800px; margin: 0 auto;">{{ chartCategoryAverage
-    }}</canvas>
 </div>

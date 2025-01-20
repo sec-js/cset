@@ -39,7 +39,7 @@ import { Observation } from '../observations/observations.model';
 import { AssessmentService } from '../../../services/assessment.service';
 import { ComponentOverrideComponent } from '../../../dialogs/component-override/component-override.component';
 import { LayoutService } from '../../../services/layout.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { CieService } from '../../../services/cie.service';
 
 
@@ -97,10 +97,12 @@ export class QuestionExtrasComponent implements OnInit {
     private tSvc: TranslocoService,
     private cieSvc: CieService,
     private resourceLibSvc: ResourceLibraryService
-  ) {
-  }
+  ) { }
 
 
+  /**
+   *
+   */
   ngOnInit() {
     this.showQuestionIds = this.configSvc.showQuestionAndRequirementIDs();
 
@@ -139,7 +141,6 @@ export class QuestionExtrasComponent implements OnInit {
    */
   toggleExtras(clickedMode: string) {
     if (this.expanded && clickedMode === this.mode) {
-
       // hide
       this.expanded = false;
       this.mode = '';
@@ -152,6 +153,9 @@ export class QuestionExtrasComponent implements OnInit {
     this.show();
   }
 
+  /**
+   *
+   */
   scrollToExtras() {
     setTimeout(() => {
       if (this.questionExtrasDiv.nativeElement.getBoundingClientRect().bottom > window.innerHeight) {
@@ -160,52 +164,44 @@ export class QuestionExtrasComponent implements OnInit {
     })
   }
 
+  async fetchDetails(): Promise<QuestionDetailsContentViewModel> {
+    const details = this.questionsSvc.getDetails(this.myQuestion.questionId, this.myQuestion.questionType).toPromise();
+    return details;
+  }
+
   /**
-   *
+   * Gets all of the extra content for the question from the API.
    */
-  show() {
+  async show() {
     // we already have content - don't make another server call
     if (this.tab != null) {
-      //this.scrollToExtras();
       return;
     }
 
-
     // Call the API for content
-    this.questionsSvc.getDetails(this.myQuestion.questionId, this.myQuestion.questionType).subscribe(
-      (details) => {
-        this.extras = details;
-        if (details.is_Component === true) {
-          this.myQuestion.is_Component = true;
-          this.toggleComponent = true;
-        }
+    this.extras = await this.fetchDetails();
+    this.extras.questionId = this.myQuestion.questionId;
 
-        this.extras.questionId = this.myQuestion.questionId;
+    // populate my details with the first "non-null" tab
+    this.tab = this.extras.listTabs?.find(t => t.requirementFrameworkTitle != null) ?? this.extras.listTabs[0];
 
-        // populate my details with the first "non-null" tab
-        this.tab = this.extras.listTabs?.find(t => t.requirementFrameworkTitle != null) ?? this.extras.listTabs[0];
-
-
-        // Component detail toggle
-        if (this.toggleComponent == true) {
-          this.toggleExtras('COMPONENT')
-          this.toggleComponent = false;
-        }
-
-        // add questionIDs to related questions for debug if configured to do so
-        if (this.showQuestionIds) {
-          if (this.tab) {
-            if (this.tab.isComponent) {
-            } else {
-              if (!!this.tab.questionsList) {
-                this.tab.questionsList.forEach((q: any) => {
-                  q.questionText += '<span class="debug-highlight">' + q.questionID + '</span>';
-                });
-              }
-            }
+    // add questionIDs to related questions for debug if configured to do so
+    if (this.showQuestionIds) {
+      if (this.tab) {
+        if (!this.tab.isComponent) {
+          if (!!this.tab.questionsList) {
+            this.tab.questionsList.forEach((q: any) => {
+              q.questionText += '<span class="debug-highlight">' + q.questionID + '</span>';
+            });
           }
         }
-      });
+      }
+    }
+    if (this.extras.is_Component) {
+      this.myQuestion.is_Component = true;
+      this.toggleComponent = true;
+      this.mode = 'COMPONENT'
+    }
   }
 
   /**
@@ -694,7 +690,7 @@ export class QuestionExtrasComponent implements OnInit {
       return result;
     }
 
-    const behavior = this.configSvc.config.moduleBehaviors.find(m => m.moduleName == this.assessSvc.assessment.maturityModel?.modelName)
+    const behavior = this.configSvc.getModuleBehavior(this.assessSvc.assessment.maturityModel?.modelName);
 
     if (mode == 'DETAIL') {
       return behavior?.questionIcons?.showDetails ?? true;
@@ -753,7 +749,7 @@ export class QuestionExtrasComponent implements OnInit {
    * @returns
    */
   whichSupplementalIcon() {
-    const behavior = this.configSvc.config.moduleBehaviors.find(m => m.moduleName == this.assessSvc.assessment.maturityModel?.modelName);
+    const behavior = this.configSvc.getModuleBehavior(this.assessSvc.assessment.maturityModel?.modelName);
     if (!!behavior && behavior.questionIcons?.guidanceIcon?.toLowerCase() == 'g') {
       return "G";
     } else {
@@ -799,7 +795,7 @@ export class QuestionExtrasComponent implements OnInit {
    * @param document
    * @returns
    */
-formatDocumentUrl(document: ReferenceDocLink, bookmark: any) {
+  formatDocumentUrl(document: ReferenceDocLink, bookmark: any) {
     return this.resourceLibSvc.formatDocumentUrl(document, bookmark);
   }
 
@@ -817,8 +813,8 @@ formatDocumentUrl(document: ReferenceDocLink, bookmark: any) {
    * independent from Examination Approach or not
    * @returns
    */
-  seperateGuidanceFromApproach() {
-    const behavior = this.configSvc.config.moduleBehaviors.find(m => m.moduleName == this.assessSvc.assessment.maturityModel?.modelName);
+  separateGuidanceFromApproach() {
+    const behavior = this.configSvc.getModuleBehavior(this.assessSvc.assessment.maturityModel?.modelName);
     return behavior?.independentSuppGuidance;
   }
 

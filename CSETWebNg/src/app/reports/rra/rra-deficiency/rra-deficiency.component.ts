@@ -29,7 +29,7 @@ import { QuestionsService } from '../../../services/questions.service';
 import { ReportAnalysisService } from '../../../services/report-analysis.service';
 import { ReportService } from '../../../services/report.service';
 import { RraDataService } from '../../../services/rra-data.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-rra-deficiency',
@@ -37,8 +37,6 @@ import { TranslocoService } from '@ngneat/transloco';
   styleUrls: ['../../reports.scss', '../../acet-reports.scss']
 })
 export class RraDeficiencyComponent implements OnInit {
-  translationTabTitle: any;
-
   response: any;
 
   loading: boolean = false;
@@ -65,9 +63,9 @@ export class RraDeficiencyComponent implements OnInit {
   ngOnInit() {
     this.loading = true;
     
-    this.translationTabTitle = this.tSvc.selectTranslate('reports.core.rra.rra deficiency report')
-      .subscribe(value =>
-        this.titleService.setTitle(this.tSvc.translate('reports.core.rra.rra deficiency report') + ' - ' + this.configSvc.behaviors.defaultTitle));
+    this.tSvc.selectTranslate('core.rra.rra deficiency report', {}, {scope: 'reports'})
+      .subscribe(title =>
+        this.titleService.setTitle(title + ' - ' + this.configSvc.behaviors.defaultTitle));
     
 
     this.maturitySvc.getMaturityDeficiency("RRA").subscribe(

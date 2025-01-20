@@ -24,8 +24,8 @@
     {{domain?.title}}
 </h1>
 
-<div class="my-4">
-    <app-edm-relationship [section]="domain?.abbreviation"></app-edm-relationship>
+<div class="my-4 d-flex justify-content-center">
+    <app-edm-heatmap [section]="domain?.abbreviation"></app-edm-heatmap>
 </div>
 
 <p>
@@ -44,7 +44,7 @@
     </tr>
     <tr *ngFor="let q of goal.questions">
         <td colspan="2" class="font-weight-bold" [innerHTML]="reportSvc.scrubGlossaryMarkup(q?.questionText)"
-            [class.pl-5]="!!q?.parentQuestionId">
+            [class.ps-5]="!!q?.parentQuestionId">
         </td>
         <td *ngIf="!q?.isParentQuestion" [class]="answerCellClass(q?.answer)">
             <div class="text-center font-weight-bold" style="width: 7rem">

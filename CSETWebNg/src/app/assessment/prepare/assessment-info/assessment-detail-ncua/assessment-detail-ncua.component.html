@@ -66,15 +66,15 @@
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-6">
-                        <label class="mb-1" for="citySite">{{ t('facility name') }}</label>
-                        <input type="text" maxlength="100" class="form-control" id="citySite" name="citySite"
-                            [(ngModel)]="assessment.cityOrSiteName" (change)="update($event)" tabindex="0">
-                    </div>
-                    <div class="form-group col-md-6">
                         <label class="mb-1" for="stateProvRegion">{{ t('city or site name') }}</label>
                         <input type="text" maxlength="100" class="form-control" id="stateProvRegion"
-                            name="stateProvRegion" [(ngModel)]="assessment.stateProvRegion" (change)="update($event)"
+                            name="stateProvRegion" [(ngModel)]="assessment.cityOrSiteName" (change)="update($event)"
                             tabindex="0">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="mb-1" for="citySite">{{ t('state province region') }}</label>
+                        <input type="text" maxlength="100" class="form-control" id="stateProvRegion" name="stateProvRegion"
+                            [(ngModel)]="assessment.stateProvRegion" (change)="update($event)" tabindex="0">
                     </div>
                 </div>
                 <div class="form-row" [hidden]="configSvc.installationMode !== 'ACET'">
@@ -171,7 +171,7 @@
                     </div>
                     <div class="form-group col-md-3">
                         <label class="mb-1" for="region">Region</label>
-                        <select (change)="update($event)" class="form-control" id="region" name="region" tabindex="0"
+                        <select (change)="update($event)" class="form-select" id="region" name="region" tabindex="0"
                             [(ngModel)]="assessment.regionCode">
                             <option [ngValue]="1">{{ncuaSvc.regionCodeTranslator(1)}}</option>
                             <option [ngValue]="2">{{ncuaSvc.regionCodeTranslator(2)}}</option>
@@ -198,7 +198,7 @@
                     </div>
                     <div class="col-md-6">
                         <label class="mb-1" for="examOverride">Exam Level Override</label>
-                        <select class="form-control" name="examOverride" [(ngModel)]="examOverride"
+                        <select class="form-select" name="examOverride" [(ngModel)]="examOverride"
                             (change)="updateOverride($event.target.value)"
                             [disabled]="this.acetDashboard === undefined || this.ncuaSvc.proposedExamLevel == 'CORE'">
                             <option>No Override</option>
@@ -206,9 +206,11 @@
                         </select>
                     </div>
                 </div>
+                <br>
                 <div *ngIf="assessment.charterType == 2 || assessment.charter >= 60000" (click)="toggleJoint()"
-                    tabindex="0" class="state-led cursor-pointer"
-                    [ngClass]="{'state-led-selected': assessment.isE_StateLed}">
+                  tabindex="0" class="state-led cursor-pointer"
+                  [ngClass]="{'state-led-selected': assessment.isE_StateLed}"
+                  matTooltip="NCUA examiners should check this box ONLY when completing a limited review of the ISE statements on state-led examinations. State examiners should check this box for all assessments.">
                     <div class="row">
                         <div class="col-2">
                             <h3 *ngIf="!assessment.isE_StateLed">&#x2610;</h3>

@@ -23,7 +23,7 @@
 ////////////////////////////////
 import { Component, HostListener, OnInit } from '@angular/core';
 import { RraDataService } from '../../../../services/rra-data.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 @Component({
   selector: 'app-rra-answer-compliance',
   templateUrl: './rra-answer-compliance.component.html',
@@ -40,9 +40,9 @@ export class RraAnswerComplianceComponent implements OnInit {
   animation: boolean = false;
 
   constructor(
-    public rraDataSvc: RraDataService, 
+    public rraDataSvc: RraDataService,
     public tSvc: TranslocoService
-    ) { }
+  ) { }
 
   ngOnInit(): void {
     this.rraDataSvc.getRRADetail().subscribe((r: any) => {
@@ -114,7 +114,7 @@ export class RraAnswerComplianceComponent implements OnInit {
 
   @HostListener('window:beforeprint')
   beforePrint() {
-    this.view = [1300, 600];
+    this.view = [700, 350];
   }
 
   @HostListener('window:afterprint')

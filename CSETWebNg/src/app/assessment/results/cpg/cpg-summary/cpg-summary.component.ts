@@ -26,7 +26,7 @@ import { ConfigService } from '../../../../services/config.service';
 import { AssessmentService } from '../../../../services/assessment.service';
 import { CpgService } from '../../../../services/cpg.service';
 import { SsgService } from '../../../../services/ssg.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-cpg-summary',
@@ -52,7 +52,7 @@ export class CpgSummaryComponent implements OnInit {
    */
   ngOnInit(): void {
     this.cpgSvc.getAnswerDistrib().subscribe((resp: any) => {
-      const cpgAnswerOptions = this.configSvc.config.moduleBehaviors.find(b => b.moduleName == 'CPG').answerOptions;
+      const cpgAnswerOptions = this.configSvc.getModuleBehavior('CPG').answerOptions;
 
       resp.forEach(r => {
         r.series.forEach(element => {

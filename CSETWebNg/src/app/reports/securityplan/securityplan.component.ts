@@ -29,7 +29,7 @@ import { ReportAnalysisService } from '../../services/report-analysis.service';
 import { AcetDashboard } from '../../models/acet-dashboard.model';
 import { ACETService } from '../../services/acet.service';
 import { AssessmentService } from '../../services/assessment.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 
 @Component({
@@ -59,17 +59,16 @@ export class SecurityplanComponent implements OnInit {
     private assessmentSvc: AssessmentService,
     private sanitizer: DomSanitizer,
     public tSvc: TranslocoService,
-    private translocoService: TranslocoService
   ) { }
 
   /**
    *
    */
   ngOnInit() {
-    
-    this.translationSub = this.translocoService.selectTranslate('reports.core.security plan.report title')
-      .subscribe(value =>
-        this.titleService.setTitle(this.tSvc.translate('reports.core.security plan.report title') + ' - ' + this.configSvc.behaviors.defaultTitle));
+    this.tSvc.selectTranslate('core.security plan.report title', {}, { scope: 'reports' })
+      .subscribe(title => {
+        this.titleService.setTitle(title + ' - ' + this.configSvc.behaviors.defaultTitle)
+      });
 
     this.reportSvc.getReport('securityplan').subscribe(
       (r: any) => {

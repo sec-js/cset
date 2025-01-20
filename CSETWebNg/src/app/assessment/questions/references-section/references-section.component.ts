@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { ReferenceDocLink } from '../../../models/question-extras.model';
 import { ConfigService } from '../../../services/config.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { ResourceLibraryService } from '../../../services/resource-library.service';
 
 @Component({
@@ -10,7 +10,7 @@ import { ResourceLibraryService } from '../../../services/resource-library.servi
 })
 export class ReferencesSectionComponent {
 
-  @Input() documents;
+  @Input() documents: any[];
 
   @Input('q')
   question: any;

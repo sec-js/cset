@@ -38,7 +38,7 @@ import { AuthenticationService } from '../../../services/authentication.service'
 import { NCUAService } from '../../../services/ncua.service';
 import { ObservationsService } from '../../../services/observations.service';
 import { CisaWorkflowFieldValidationResponse } from '../../../models/demographics-iod.model';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 import { ConversionService } from '../../../services/conversion.service';
 import { CieDocumentsComponent } from '../../../dialogs/cie-documents/cie-documents.component';
 
@@ -46,7 +46,7 @@ import { CieDocumentsComponent } from '../../../dialogs/cie-documents/cie-docume
   selector: 'app-reports',
   templateUrl: './reports.component.html',
   // eslint-disable-next-line
-  host: { class: 'd-flex flex-column flex-11a' }, 
+  host: { class: 'd-flex flex-column flex-11a' },
   styleUrls: ['./reports.component.scss']
 
 })
@@ -151,7 +151,7 @@ export class ReportsComponent implements OnInit, AfterViewInit {
 
     // call the API for a ruling on whether all questions have been answered
     this.disableAcetReportLinks = false;
-  
+
     if (this.configSvc.installationMode === 'IOD') {
       this.reportSvc.validateCisaAssessorFields().subscribe((result: CisaWorkflowFieldValidationResponse) => {
         this.cisaAssessorWorkflowFieldValidation = result;
@@ -344,11 +344,13 @@ export class ReportsComponent implements OnInit, AfterViewInit {
   updateSectionId(): void {
     if (!!this.assessSvc.assessment) {
       // Network diagram and standard assessments use the same assessment list. sectionId will be passed as DIAGRAM
-      if (this.assessSvc.assessment.useStandard && !this.isMobile) {
-          this.currentSectionId = 'STANDARD';
+      if (this.assessSvc.usesStandard('MOPhysical')) {
+        this.currentSectionId = 'MOPhysical';
+      } else if (this.assessSvc.assessment.useStandard && !this.isMobile) {
+        this.currentSectionId = 'STANDARD';
       } else if (this.assessSvc.assessment.useDiagram && !this.isMobile) {
-          this.currentSectionId = 'DIAGRAM';
-      } else if (this.assessSvc.usesMaturityModel('CMMC') ) {
+        this.currentSectionId = 'DIAGRAM';
+      } else if (this.assessSvc.usesMaturityModel('CMMC')) {
         this.currentSectionId = 'CMMC';
       } else if (this.assessSvc.usesMaturityModel('EDM')) {
         this.currentSectionId = 'EDM';
@@ -360,19 +362,23 @@ export class ReportsComponent implements OnInit, AfterViewInit {
         this.currentSectionId = 'CIS';
       } else if (this.assessSvc.usesMaturityModel('CMMC2')) {
         this.currentSectionId = 'CMMC2';
+      } else if (this.assessSvc.usesMaturityModel('CMMC2F')) {
+        this.currentSectionId = 'CMMC2';
       } else if (this.assessSvc.usesMaturityModel('RRA') && !this.isMobile) {
-          this.currentSectionId = 'RRA';
+        this.currentSectionId = 'RRA';
       } else if (this.assessSvc.usesMaturityModel('ACET') && !this.isMobile) {
-          this.currentSectionId = 'ACET';
+        this.currentSectionId = 'ACET';
       } else if (this.assessSvc.usesMaturityModel('MVRA') && !this.isMobile) {
-          this.currentSectionId = 'MVRA';
+        this.currentSectionId = 'MVRA';
       } else if (this.assessSvc.usesMaturityModel('CPG') && !this.isMobile) {
-          this.currentSectionId = 'CPG';
+        this.currentSectionId = 'CPG';
+      } else if (this.assessSvc.usesMaturityModel('CPG2') && !this.isMobile) {
+        this.currentSectionId = 'CPG';
       } else if (this.assessSvc.usesMaturityModel('VADR') && !this.isMobile) {
         this.currentSectionId = 'VADR';
       } else if (this.assessSvc.usesMaturityModel('C2M2') && !this.isMobile) {
         this.currentSectionId = 'C2M2';
-      } else if (this.assessSvc.usesMaturityModel('SD02 Series') && !this.  isMobile) {
+      } else if (this.assessSvc.usesMaturityModel('SD02 Series') && !this.isMobile) {
         this.currentSectionId = 'SD02 Series';
       } else if (this.assessSvc.usesMaturityModel('SD02 Owner') && !this.isMobile) {
         this.currentSectionId = 'SD02 Owner';
@@ -384,6 +390,10 @@ export class ReportsComponent implements OnInit, AfterViewInit {
     } else {
       this.currentSectionId = null; // No assessment
     }
+  }
+
+  exportPoamToExcel() {
+    window.location.href = this.configSvc.apiUrl + 'reports/poam/excelexport?token=' + localStorage.getItem('userToken');
   }
 
 }

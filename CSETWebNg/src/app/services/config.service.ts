@@ -24,9 +24,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, Inject } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
-import { concat } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { concat, firstValueFrom } from 'rxjs';
+import { first, tap } from 'rxjs/operators';
 import { merge } from 'lodash';
+import { ModuleBehavior } from '../models/module-config.model';
 
 @Injectable()
 export class ConfigService {
@@ -34,6 +35,12 @@ export class ConfigService {
    * The full URL of the API
    */
   apiUrl: string;
+
+  /**
+   * The server URL (without the 'API' segment).
+   * Used for indicating the configured URL in case the API is down.
+   */
+  serverUrl: string;
 
   /**
    * The full URL of the UI
@@ -56,9 +63,8 @@ export class ConfigService {
   libraryUrl: string;
   dhsEmail: string;
 
-
   onlineUrl: string;
-  analyticsUrl: string = "http://localhost:5278/";
+  analyticsUrl: string = 'http://134.20.8.30:5778/';
 
   csetGithubApiUrl: string;
   helpContactEmail: string;
@@ -99,7 +105,7 @@ export class ConfigService {
    * Constructor.
    * @param http
    */
-  constructor(private http: HttpClient, @Inject(DOCUMENT) private document: Document) { }
+  constructor(private http: HttpClient, @Inject(DOCUMENT) private document: Document) {}
 
   /**
    *
@@ -108,10 +114,10 @@ export class ConfigService {
     if (!this.initialized) {
       this.isRunningInElectron = localStorage.getItem('isRunningInElectron') == 'true';
 
-      return this.http
-        .get('assets/settings/config.json')
-        .toPromise()
-        .then((config) => {
+      const obs = this.http.get('assets/settings/config.json');
+      const prom = firstValueFrom(obs);
+
+      return prom.then((config) => {
           this.config = config;
         })
         .then(() => {
@@ -139,10 +145,10 @@ export class ConfigService {
   }
 
   enableCisaAssessorWorkflow() {
-    return this.http
-      .get('assets/settings/config.IOD.json')
-      .toPromise()
-      .then((iodConfig) => {
+    const obs = this.http.get('assets/settings/config.IOD.json')
+    const prom = firstValueFrom(obs);
+
+    return prom.then((iodConfig) => {
         merge(this.config, iodConfig);
         this.setConfigPropertiesForLocalService();
       });
@@ -175,19 +181,20 @@ export class ConfigService {
     const apiProtocol = this.config.api.protocol + '://';
     const appProtocol = this.config.app.protocol + '://';
 
-
     const localStorageApiUrl = localStorage.getItem('apiUrl');
     const localStorageLibraryUrl = localStorage.getItem('libraryUrl');
     if (!!localStorageApiUrl) {
       this.apiUrl = localStorageApiUrl + '/' + this.config.api.apiIdentifier + '/';
+      this.serverUrl = localStorageApiUrl + '/';
       this.docUrl = localStorageApiUrl + '/' + this.config.api.documentsIdentifier + '/';
     } else {
       this.apiUrl = apiProtocol + this.config.api.host + apiPort + '/' + this.config.api.apiIdentifier + '/';
+      this.serverUrl = apiProtocol + this.config.api.host + apiPort + '/';
       this.docUrl = apiProtocol + this.config.api.host + apiPort + '/' + this.config.api.documentsIdentifier + '/';
     }
 
     this.appUrl = appProtocol + this.config.app.host + appPort;
-    this.analyticsUrl = "http://localhost:5278/";
+    this.analyticsUrl = 'http://134.20.8.30:5778/';
     this.helpContactEmail = this.config.helpContactEmail;
     this.helpContactPhone = this.config.helpContactPhone;
     this.csetGithubApiUrl = this.config.csetGithubApiUrl;
@@ -206,9 +213,10 @@ export class ConfigService {
     } else if (!!rl) {
       const rlProtocol = rl.protocol + '://';
       const rlPort = !!rl.port ? ':' + rl.port : '';
-      this.libraryUrl = rlProtocol + rl.host + rlPort + '/' + (rl.apiIdentifier ?? 'api') + '/library/'
+      this.libraryUrl = rlProtocol + rl.host + rlPort + '/' + (rl.apiIdentifier ?? 'api') + '/library/';
     } else {
-      this.libraryUrl = apiProtocol + this.config.api.host + apiPort + '/' + this.config.api.apiIdentifier + '/library/';
+      this.libraryUrl =
+        apiProtocol + this.config.api.host + apiPort + '/' + this.config.api.apiIdentifier + '/library/';
     }
 
     this.refDocUrl = this.libraryUrl + 'doc/';
@@ -315,24 +323,31 @@ export class ConfigService {
     return this.http.post(this.apiUrl + 'EnableProtectedFeature/setCisaAssessorWorkflow', cisaAssessorWorkflowEnabled);
   }
 
+  getCsetVersion() {
+    return this.http.get(this.apiUrl + 'version');
+  }
+
   /**
-   * Returns the module configuration object from configuration.  
+   * Returns the module configuration object from configuration.
    * Either the modelId or moduleName can be sent as a key.
    * Returns null if it can't be found.
    */
-  getModuleConfig(id: any) {
+  getModuleBehavior(id: any): ModuleBehavior {
     // check the model's configuration
     let modelConfiguration =
-      this.config.moduleBehaviors.find(x => x.modelId == +id) ||
-      this.config.moduleBehaviors.find(x => x.moduleName == id);
-    
+      this.config.moduleBehaviors.find((x) => x.modelId == +id) ||
+      this.config.moduleBehaviors.find((x) => x.moduleName == id);
+
     return modelConfiguration;
   }
 
   /**
-   * 
+   *
    */
   switchConfigsForMode(installationMode) {
+    let title = this.document.querySelector('title');
+    title.innerText = this.config.behaviors.defaultTitle;
+
     switch (installationMode) {
       case 'ACET':
         {
@@ -349,9 +364,6 @@ export class ConfigService {
           // change favicon and title
           const link: HTMLLinkElement = this.document.querySelector("link[rel~='icon']");
           link.href = 'assets/icons/favicon_acet.ico?app=acet1';
-
-          var title = this.document.querySelector('title');
-          title.innerText = 'TOOLBOX';
         }
         break;
       case 'TSA':
@@ -359,9 +371,6 @@ export class ConfigService {
           // change favicon and title
           const link: HTMLLinkElement = this.document.querySelector("link[rel~='icon']");
           link.href = 'assets/icons/favicon_tsa.ico?app=tsa1';
-
-          var title = this.document.querySelector('title');
-          title.innerText = 'CSET-TSA';
         }
         break;
       case 'CIE':
@@ -369,9 +378,6 @@ export class ConfigService {
           // change favicon and title
           const link: HTMLLinkElement = this.document.querySelector("link[rel~='icon']");
           link.href = 'assets/icons/favicon_cie.ico?app=cie1';
-
-          var title = this.document.querySelector('title');
-          title.innerText = 'CIE';
         }
         break;
       case 'CF':
@@ -379,9 +385,6 @@ export class ConfigService {
           // change favicon and title
           const link: HTMLLinkElement = this.document.querySelector("link[rel~='icon']");
           link.href = 'assets/icons/favicon_cf.ico?app=cf1';
-
-          var title = this.document.querySelector('title');
-          title.innerText = 'CSET-CF';
         }
         break;
       case 'RRA':
@@ -389,9 +392,6 @@ export class ConfigService {
           // change favicon and title
           const link: HTMLLinkElement = this.document.querySelector("link[rel~='icon']");
           link.href = 'assets/icons/favicon_rra.ico?app=rra1';
-
-          var title = this.document.querySelector('title');
-          title.innerText = 'CISA - Ransomware Readiness';
         }
         break;
       case 'RENEW':
@@ -399,18 +399,12 @@ export class ConfigService {
           // change favicon and title
           const link: HTMLLinkElement = this.document.querySelector("link[rel~='icon']");
           link.href = 'assets/icons/favicon_renew.ico?app=renew1';
-
-          var title = this.document.querySelector('title');
-          title.innerText = 'CSET Renewables';
         }
         break;
       default: {
         // change favicon and title
         const link: HTMLLinkElement = this.document.querySelector("link[rel~='icon']");
         link.href = 'assets/icons/favicon_cset.ico?app=cset';
-
-        var title = this.document.querySelector('title');
-        title.innerText = 'CSET';
       }
     }
   }

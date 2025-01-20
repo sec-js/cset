@@ -1,11 +1,7 @@
 ﻿using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Helpers;
-using SixLabors.ImageSharp.ColorSpaces;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CSETWebCore.Business.Maturity
 {
@@ -151,6 +147,15 @@ namespace CSETWebCore.Business.Maturity
                 || chemicalSectors.Contains(ddSector?.IntValue ?? -1))
             {
                 return 18;
+            }
+
+
+            // INFORMATION TECHNOLOGY (IT)
+            var itSectors = new List<int>() { 13, 28 };
+            if ((itSectors.Contains(demographics?.SectorId ?? -1))
+                || itSectors.Contains(ddSector?.IntValue ?? -1))
+            {
+                return 20;
             }
 
 

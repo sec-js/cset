@@ -28,7 +28,7 @@ import { AssessmentService } from './assessment.service';
 import {
   AssessmentDetail
 } from '../models/assessment-info.model';
-import { Observable } from 'rxjs';
+import { firstValueFrom, Observable } from 'rxjs';
 import { Router } from '@angular/router';
 const headers = {
   headers: new HttpHeaders().set("Content-Type", "application/json"),
@@ -47,14 +47,15 @@ export class AssessCompareAnalyticsService {
     private assessSvc: AssessmentService,
     private router: Router
   ) { }
-
-  analyticsAssessment(assessId: number) {
-    this.http.get(
-      this.configSvc.apiUrl + "tsa/getAssessmentById",
-      headers,
-    )
-    this.router.navigate(["/assessment-comparison-analytics"], { queryParamsHandling: 'preserve' });
-  }
+  
+  // Method no longer in use
+  // analyticsAssessment(assessId: number) {
+  //   this.http.get(
+  //     this.configSvc.apiUrl + "tsa/getAssessmentById",
+  //     headers,
+  //   )
+  //   this.router.navigate(["/assessment-comparison-analytics"], { queryParamsHandling: 'preserve' });
+  // }
 
   loadAssessment(id: number) {
     this.getAssessmentToken(id).then(() => {
@@ -68,10 +69,10 @@ export class AssessCompareAnalyticsService {
   }
 
   getAssessmentToken(assessId: number) {
-    return this.http
-      .get(this.configSvc.apiUrl + 'auth/token?assessmentId=' + assessId)
-      .toPromise()
-      .then((response: { token: string }) => {
+    const obs = this.http.get(this.configSvc.apiUrl + 'auth/token?assessmentId=' + assessId);
+    const prom = firstValueFrom(obs);
+
+    return prom.then((response: { token: string }) => {
         localStorage.removeItem('userToken');
         localStorage.setItem('userToken', response.token);
         if (assessId) {

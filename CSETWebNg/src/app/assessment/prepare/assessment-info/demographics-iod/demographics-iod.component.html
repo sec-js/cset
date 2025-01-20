@@ -97,17 +97,12 @@
   </div>
 
   <!-- #2 -->
-  <div>
-    <ng-container *ngIf="demographicData.organizationType == 1">
-      <label for="numberEmployeesUnit" class="form-label"> Number of employees in the business unit? </label>
-      <div class="fst-italic my-2">
-        Please select N/A if the business unit and the overall organization are the same.
-      </div>
-    </ng-container>
-    <ng-container *ngIf="demographicData.organizationType != 1">
-      <label for="numberEmployeesUnit" class="form-label"> Number of employees in the department? </label>
-      <div class="fst-italic my-2">Please select N/A if the department and the overall organization are the same.</div>
-    </ng-container>
+  <div class="mb-3">
+    <label for="numberEmployeesUnit" *ngIf="demographicData.organizationType == 1" class="form-label"> Number of
+      employees in the business unit? </label>
+    <label for="numberEmployeesUnit" *ngIf="demographicData.organizationType != 1" class="form-label"> Number of
+      employees in the department? </label>
+
     <select [ngClass]="{ 'alert-danger' : !demographicData.numberEmployeesUnit }" class="form-select"
       id="numberEmployeesUnit" tabindex="0" name="numberEmployeesUnit" [(ngModel)]="demographicData.numberEmployeesUnit"
       (change)="newUpdate('NUM-EMP-UNIT', $event, 'int')">
@@ -117,19 +112,24 @@
         {{ i.optionText }}
       </option>
     </select>
+
+    <div *ngIf="demographicData.organizationType == 1" class="fst-italic mb-2">
+      Please select N/A if the business unit and the overall organization are the same.
+    </div>
+    <div *ngIf="demographicData.organizationType != 1" class="fst-italic mb-2">
+      Please select N/A if the department and the overall organization are the same.
+    </div>
   </div>
 
   <!-- #3 -->
-  <div>
-    <ng-container *ngIf="demographicData.organizationType == 1">
-      <label for="totalAnnualRevenue" class="form-label"> What is the total annual revenue for your organization?
-      </label>
-    </ng-container>
-    <ng-container *ngIf="demographicData.organizationType != 1">
-      <label for="totalAnnualRevenue" class="form-label">
-        What is the total annual funding for your governmental organization or agency?
-      </label>
-    </ng-container>
+  <div class="mb-4">
+    <label for="totalAnnualRevenue" *ngIf="demographicData.organizationType == 1" class="form-label"> What is the total
+      annual revenue for your organization?
+    </label>
+    <label for="totalAnnualRevenue" *ngIf="demographicData.organizationType != 1" class="form-label">
+      What is the total annual funding for your governmental organization or agency?
+    </label>
+
     <select [ngClass]="{ 'alert-danger' : !demographicData.annualRevenue }" class="form-select" id="totalAnnualRevenue"
       tabindex="0" name="totalAnnualRevenue" [(ngModel)]="demographicData.annualRevenue"
       (change)="newUpdate('ANN-REVENUE', $event, 'int')">
@@ -154,13 +154,13 @@
     </label>
 
     <div class="btn-group col-4" role="group" data-toggle="buttons">
-      <label class="btn btn-level btn-rounded form-check-label" [class.active]="demographicData.usesStandard"
+      <label class="btn btn-level btn-rounded" [class.active]="demographicData.usesStandard"
         (change)="changeUsesStandard(true)">
         <input class="btn-check" name="standardYes" id="standardYes" type="radio" autocomplete="off" tabindex="0"
           [checked]="demographicData.usesStandard" />
         Yes
       </label>
-      <label class="btn btn-level btn-rounded form-check-label" [class.active]="!demographicData.usesStandard"
+      <label class="btn btn-level btn-rounded" [class.active]="!demographicData.usesStandard"
         (change)="changeUsesStandard(false)">
         <input class="btn-check" name="standardNo" id="standardNo" type="radio" autocomplete="off" tabindex="0"
           [checked]="!demographicData.usesStandard" />
@@ -168,20 +168,20 @@
       </label>
     </div>
 
-    <div *ngIf="demographicData.usesStandard ?? false" class="ml-5">
+    <div *ngIf="demographicData.usesStandard ?? false" class="ms-5">
       <div class="fst-italic my-2">
         Please select the two most important resources or bodies of practice used. If the name of the resource is not
         listed please enter it directly into each box as applicable.
       </div>
 
       <div>
-        <label for="standard1" class="form-label">Most important:</label>
+        <label for="standard1" class="form-label">Most important</label>
         <input [ngClass]="{ 'alert-danger' : !demographicData.standard1 }" type="text" maxlength="250"
           class="form-control mb-3" id="standard1" name="standard1" list="listStandards"
           [(ngModel)]="demographicData.standard1" (blur)="newUpdate('STANDARD1', $event, 'string')" />
       </div>
       <div>
-        <label for="standard2" class="form-label">Second most important:</label>
+        <label for="standard2" class="form-label">Second most important</label>
         <input [ngClass]="{ 'alert-danger' : !demographicData.standard2 }" type="text" maxlength="250"
           class="form-control mb-3" id="standard2" name="standard2" list="listStandards"
           [(ngModel)]="demographicData.standard2" (blur)="newUpdate('STANDARD2', $event, 'string')" />
@@ -200,13 +200,13 @@
     </label>
 
     <div class="btn-group col-4" role="group" data-toggle="buttons">
-      <label class="btn btn-level btn-rounded form-check-label" [class.active]="demographicData.requiredToComply"
+      <label class="btn btn-level btn-rounded" [class.active]="demographicData.requiredToComply"
         (change)="setRequireComply(true)">
         <input class="btn-check" name="complyYes" id="complyYes" type="radio" autocomplete="off" tabindex="0"
           [checked]="demographicData.requiredToComply" />
         Yes
       </label>
-      <label class="btn btn-level btn-rounded form-check-label" [class.active]="!demographicData.requiredToComply"
+      <label class="btn btn-level btn-rounded" [class.active]="!demographicData.requiredToComply"
         (change)="setRequireComply(false)">
         <input class="btn-check" name="complyNo" id="complyNo" type="radio" autocomplete="off" tabindex="0"
           [checked]="!demographicData.requiredToComply" />
@@ -214,7 +214,7 @@
       </label>
     </div>
 
-    <div *ngIf="demographicData.requiredToComply" class="ml-5">
+    <div *ngIf="demographicData.requiredToComply" class="ms-5">
       <p class="fst-italic">
         Please select the two primary regulation types. If known, please enter the name of each regulation in the spaces
         provided.
@@ -222,7 +222,7 @@
 
       <div>
         <div class="mb-3">
-          <div>Regulation Type 1:</div>
+          <label class="form-label">Regulation Type 1</label>
           <ng-container *ngFor="let reg of demographicData.listRegulationTypes">
             <input class="radio-custom" name="regtype1" [id]="'regtype1-' + reg.optionValue" type="radio"
               autocomplete="off" tabindex="0" (click)="changeRegType1(reg, $event)"
@@ -231,13 +231,13 @@
           </ng-container>
         </div>
 
-        Regulation 1:
+        <label class="form-label">Regulation 1</label>
         <input class="form-control" type="text" name="reg1Other" [(ngModel)]="demographicData.reg1Other"
           (blur)="newUpdate('REG-1-OTHER', $event, 'string')" />
       </div>
 
       <div>
-        <div>Regulation Type 2:</div>
+        <label class="form-label">Regulation Type 2</label>
         <div class="mb-3">
           <ng-container *ngFor="let reg of demographicData.listRegulationTypes">
             <input class="radio-custom" name="regtype2" [id]="'regtype2-' + reg.optionValue" type="radio"
@@ -247,7 +247,7 @@
           </ng-container>
         </div>
 
-        Regulation 2:
+        <label class="form-label">Regulation 2</label>
         <input class="form-control" type="text" name="reg2Other" [(ngModel)]="demographicData.reg2Other"
           (blur)="newUpdate('REG-2-OTHER', $event, 'string')" />
       </div>
@@ -259,7 +259,7 @@
     <label for="assetValue" class="form-label">
       Please indicate the group(s) that your organization shares with or obtains cybersecurity-related information from.
     </label>
-    <div class="ml-5">
+    <div class="ms-5">
       <div class="fst-italic my-2">Check all that apply.</div>
       <div class="mb-3">
         <ng-container *ngFor="let org of demographicData.listShareOrgs">
@@ -285,15 +285,15 @@
       Please select the two most significant barriers or concerns limiting your organization's participation in
       cybersecurity information sharing groups or initiatives.
     </label>
-    <div class="ml-5">
+    <div class="ms-5">
       <div class="fst-italic my-2">
         If the name of the barrier is not listed please enter it directly into each box as applicable.
       </div>
-      <label for="barrier1" class="form-label">Most significant:</label>
+      <label for="barrier1" class="form-label">Most significant</label>
       <input [ngClass]="{ 'alert-danger' : !demographicData.barrier1 }" type="text" maxlength="250"
         class="form-control mb-3" id="barrier1" name="barrier1" list="listBarriers"
         [(ngModel)]="demographicData.barrier1" (blur)="newUpdate('BARRIER1', $event, 'string')" />
-      <label for="barrier2" class="form-label">Second most significant:</label>
+      <label for="barrier2" class="form-label">Second most significant</label>
       <input [ngClass]="{ 'alert-danger' : !demographicData.barrier2 }" type="text" maxlength="250"
         class="form-control mb-3" id="barrier2" name="barrier2" list="listBarriers"
         [(ngModel)]="demographicData.barrier2" (blur)="newUpdate('BARRIER2', $event, 'string')" />

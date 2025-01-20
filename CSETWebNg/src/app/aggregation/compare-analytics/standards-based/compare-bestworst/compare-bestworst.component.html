@@ -20,11 +20,20 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
   SOFTWARE. 
 -------------------------->
+<div *transloco="let t" class="mb-4">
+  <p>
+    {{t('aggregation.compare.para 12')}}
+  </p>
+  <p>
+    {{t('aggregation.compare.para 13')}}
+  </p>
+</div>
+
 <div class="d-flex flex-row col-12">
-  <div class="col-4 pl-0 pr-0">
-    <ul style="padding-inline-start: 0" class="pr-5">
+  <div class="col-4 ps-0 pe-0">
+    <ul style="padding-inline-start: 0" class="pe-5">
       <li *ngFor="let cat of categories" class="cursor-pointer list-unstyled">
-        <div (click)="selectCategory(cat)" [class.cat-selected]="cat === currentCategory" class="p-1 pl-2 pr-2 w-100">
+        <div (click)="selectCategory(cat)" [class.cat-selected]="cat === currentCategory" class="p-1 ps-2 pe-2 w-100">
           {{ cat.category }}
         </div>
       </li>

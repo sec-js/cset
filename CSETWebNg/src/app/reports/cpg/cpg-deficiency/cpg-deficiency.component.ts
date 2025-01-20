@@ -29,7 +29,7 @@ import { CpgService } from '../../../services/cpg.service';
 import { SsgService } from '../../../services/ssg.service';
 import { MaturityService } from '../../../services/maturity.service';
 import { QuestionsService } from '../../../services/questions.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-cpg-deficiency',
@@ -76,7 +76,10 @@ export class CpgDeficiencyComponent implements OnInit {
   ngOnInit(): void {
     this.loading = true;
 
-    this.titleSvc.setTitle(this.tSvc.translate('reports.core.cpg.deficiency.cpg deficiency') + " - " + this.configSvc.behaviors.defaultTitle);
+    this.tSvc.selectTranslate('core.cpg.deficiency.cpg deficiency', {}, {scope: 'reports'})
+      .subscribe(title => {
+        this.titleSvc.setTitle(title + ' - ' + this.configSvc.behaviors.defaultTitle)
+      });
 
     // make sure that the assessSvc has the assessment loaded so that we can determine any SSG model applicable
     this.assessSvc.getAssessmentDetail().subscribe((assessmentDetail: any) => {

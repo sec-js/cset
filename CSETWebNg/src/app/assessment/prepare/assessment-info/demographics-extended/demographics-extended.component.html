@@ -35,28 +35,27 @@
     <p>
         Select the critical infrastructure sector and subsector that best reflects your primary business/operations.
     </p>
-    <div class="form-row">
+    <div class="row">
         <div class="form-group col-md-6">
-            <label>
+            <label class="form-label">
                 Sector
                 <button (click)="launchSectorHelp()" style="background-color: transparent; border: none">
-                    <span class="cset-icons-question-circle-outline fs-base-4 mr-2 align-middle"></span>
+                    <span class="cset-icons-question-circle-outline fs-base-4 me-2 align-middle"></span>
                 </button>
             </label>
-            <select class="form-control" id="sector" name="sector" tabindex="0" [(ngModel)]="demographicData.sectorId"
+            <select class="form-select" id="sector" name="sector" tabindex="0" [(ngModel)]="demographicData.sectorId"
                 (change)="getSubsectors($event.target.value, true)">
                 <option [ngValue]="null">-- Select Sector --</option>
                 <option *ngFor="let sector of sectorList" [value]="sector.sectorId">
                     {{sector.sectorName}}
                 </option>
             </select>
-
         </div>
         <div class="form-group col-md-6" style="display: flex; flex-direction: column; justify-content: space-between">
-            <label>
+            <label class="form-label">
                 Subsector
             </label>
-            <select class="form-control" id="subsector" name="subsector" tabindex="0"
+            <select class="form-select" id="subsector" name="subsector" tabindex="0"
                 [(ngModel)]="demographicData.subSectorId" (change)="update($event.target.value)">
                 <option [ngValue]="null">-- Select Subsector --</option>
                 <option *ngFor="let subsector of subSectorList" [value]="subsector.subSectorId">
@@ -76,7 +75,7 @@
             <a href="https://www.flsenate.gov/Committees/billsummaries/2022/html/2864" target="_blank">Florida House
                 Bill 7055</a>?
         </p>
-        <div class="d-flex flex-column ml-3">
+        <div class="d-flex flex-column ms-3">
             <input class="radio-custom" style="visibility: visible" name="HB7055No" id="HB7055No" type="radio"
                 autocomplete="off" tabindex="1" (click)="setHb7055('N')" [checked]="demographicData.hb7055 == 'N'">
             <label class="radio-custom-label" for="HB7055No">No</label>
@@ -84,7 +83,7 @@
                 autocomplete="off" tabindex="0" (click)="setHb7055('Y')" [checked]="demographicData.hb7055 == 'Y'">
             <label class="radio-custom-label" for="HB7055Yes">Yes</label>
         </div>
-        <div *ngIf="demographicData.hb7055 == 'Y'" class="ml-5 mt-3">
+        <div *ngIf="demographicData.hb7055 == 'Y'" class="ms-5 mt-3">
             <p>
                 Are you intending to apply for the State of Florida Local Cybersecurity Grant Program? The full
                 assessments completes the requirements for house bill 7055?
@@ -113,12 +112,12 @@
             (IT) or Operational Technology (OT) systems?
         </p>
 
-        <div class="d-flex flex-column ml-3">
+        <div class="d-flex flex-column ms-3">
             <input class="radio-custom" style="visibility: visible" name="primaryType" id="primaryIT" type="radio"
                 autocomplete="off" tabindex="0" (click)="setInfrastructureItOt('IT')"
                 [checked]="demographicData.infrastructureItOt == 'IT'">
             <label class="radio-custom-label" for="primaryIT">
-                <strong class="mr-4">Information Technology (IT)</strong>
+                <strong class="me-4">Information Technology (IT)</strong>
                 <div>
                     <div>
                         Any equipment or interconnected system or
@@ -126,7 +125,7 @@
                         management,
                         movement, control, display, switching, interchange, transmission, or reception of data or
                         information.
-                        <div class="fst-italic mt-2 ml-4 mb-4">
+                        <div class="fst-italic mt-2 ms-4 mb-4">
                             Examples include the internet, mobile phones, business operations support, computers,
                             content management and performance software, and software and support for office automation
                             systems such as email, word processing and spreadsheets.
@@ -138,13 +137,13 @@
                 autocomplete="off" tabindex="0" (click)="setInfrastructureItOt('OT')"
                 [checked]="demographicData.infrastructureItOt == 'OT'">
             <label class="radio-custom-label" for="primaryOT">
-                <strong class="mr-4">Operational Technology (OT)</strong>
+                <strong class="me-4">Operational Technology (OT)</strong>
                 <div>
                     Programmable systems or devices that interact
                     with the physical environment (or manage devices that interact with the physical environment). These
                     systems/devices detect or cause a direct change through the monitoring and/or control of devices,
                     processes, and events.
-                    <div class="fst-italic mt-2 ml-4">
+                    <div class="fst-italic mt-2 ms-4">
                         Examples include industrial control systems, plant floor controls, hospital diagnostic and
                         monitoring systems, transportation control systems, building management systems, fire control
                         systems, and physical access control mechanisms.
@@ -166,7 +165,7 @@
     </p>
 
     <div class="mb-4 d-flex flex-row" style="align-items: center">
-        <h5 class="mb-0 mr-5">Statewide</h5>
+        <h5 class="mb-0 me-5">Statewide</h5>
         <button class="btn btn-link" (click)="selectAllCounties(true)">Select All</button>
         <button class="btn btn-link" (click)="selectAllCounties(false)">Select None</button>
     </div>
@@ -223,7 +222,7 @@
             How many total employees <u>directly support</u>
             business/operations in the geographic areas selected?
         </p>
-        <select class="form-control" id="employees" name="employees" tabindex="0"
+        <select class="form-select" id="employees" name="employees" tabindex="0"
             [(ngModel)]="demographicData.employees" (change)="update($event.target.value)">
             <option [ngValue]="null">-- Select Employees --</option>
             <option *ngFor="let e of employeeRanges" [value]="e.value">
@@ -238,7 +237,7 @@
             How many customers does your business/operations <u>directly support</u>
             (service/host) in the geographic areas selected?
         </p>
-        <select class="form-control" id="customers" name="customers" tabindex="0"
+        <select class="form-select" id="customers" name="customers" tabindex="0"
             [(ngModel)]="demographicData.customersSupported" (change)="update($event.target.value)">
             <option [ngValue]="null">-- Select Customers --</option>
             <option *ngFor="let c of customerRanges" [value]="c.value">
@@ -258,7 +257,7 @@
             What would be the initial <u>geographic impact</u> (Municipality/County/State) of your decreased
             business/operations as the result of a significant/major disruption to your critical cyber services?
         </p>
-        <select class="form-control" id="geoScope" name="geoScope" tabindex="0"
+        <select class="form-select" id="geoScope" name="geoScope" tabindex="0"
             [(ngModel)]="demographicData.geographicScope" (change)="update($event.target.value)">
             <option [ngValue]="null">-- Select Scope --</option>
             <option *ngFor="let s of geoScopeList" [value]="s.value">
@@ -273,7 +272,7 @@
             Is there a Chief Information Officer (CIO) or equivalent responsible for the critical cyber services
             supporting your business/operations?
         </p>
-        <select class="form-control" id="cio" name="cio" tabindex="0" [(ngModel)]="demographicData.cioExists"
+        <select class="form-select" id="cio" name="cio" tabindex="0" [(ngModel)]="demographicData.cioExists"
             (change)="update($event)">
             <option [ngValue]="null">-- Select --</option>
             <option *ngFor="let i of cioList" [value]="i.value">
@@ -288,7 +287,7 @@
             Is there a Chief Information Security Officer (CISO) or equivalent responsible for the critical cyber
             services supporting your business/operations?
         </p>
-        <select class="form-control" id="ciso" name="ciso" tabindex="0" [(ngModel)]="demographicData.cisoExists"
+        <select class="form-select" id="ciso" name="ciso" tabindex="0" [(ngModel)]="demographicData.cisoExists"
             (change)="update($event)">
             <option [ngValue]="null">-- Select --</option>
             <option *ngFor="let i of cisoList" [value]="i.value">
@@ -303,7 +302,7 @@
             Does your organization have a formalized cybersecurity training program/function that provides employees
             with more advanced information/skills than basic cyber awareness-level training?
         </p>
-        <select class="form-control" id="training" name="training" tabindex="0"
+        <select class="form-select" id="training" name="training" tabindex="0"
             [(ngModel)]="demographicData.cyberTrainingProgramExists" (change)="update($event)">
             <option [ngValue]="null">-- Select --</option>
             <option *ngFor="let i of trainingList" [value]="i.value">
@@ -326,7 +325,7 @@
             no-cost analysis, interested participants must fully complete their CSET risk assessment.
         </p>
         <p class="fst-italic">Are you interested in being considered for this free assessment follow-on service?</p>
-        <div class="d-flex flex-column ml-3">
+        <div class="d-flex flex-column ms-3">
             <input class="radio-custom" style="visibility: visible" name="FreeAssessYes" id="FreeAssessYes" type="radio"
                 autocomplete="off" tabindex="0" (click)="setCyberRisk('Y')"
                 [checked]="demographicData.cyberRiskService == 'Y'">

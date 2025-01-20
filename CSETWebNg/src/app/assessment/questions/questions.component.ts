@@ -32,7 +32,7 @@ import { QuestionFilterService } from '../../services/filtering/question-filter.
 import { ConfigService } from '../../services/config.service';
 import { CompletionService } from '../../services/completion.service';
 import { ACETService } from '../../services/acet.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-questions',
@@ -309,7 +309,7 @@ export class QuestionsComponent implements AfterViewChecked, OnInit, AfterViewIn
 
         this.categories = response.categories;
 
-        this.filterSvc.answerOptions = response.answerOptions;
+        this.filterSvc.answerOptions = response.answerOptions.slice();
         this.filterSvc.maturityModelId = 0;
 
         this.filterSvc.evaluateFiltersForCategories(this.categories);

@@ -68,10 +68,10 @@ public partial class MATURITY_QUESTIONS
 
     public string Outcome { get; set; }
 
-    public string Implementation_Guides { get; set; }
-
     [StringLength(300)]
     public string Security_Practice { get; set; }
+
+    public string Implementation_Guides { get; set; }
 
     [ForeignKey("Grouping_Id")]
     [InverseProperty("MATURITY_QUESTIONS")]
@@ -88,6 +88,9 @@ public partial class MATURITY_QUESTIONS
 
     [InverseProperty("Mat_Question")]
     public virtual ICollection<MATURITY_ANSWER_OPTIONS> MATURITY_ANSWER_OPTIONS { get; set; } = new List<MATURITY_ANSWER_OPTIONS>();
+
+    [InverseProperty("Maturity_Question")]
+    public virtual MATURITY_EXTRA MATURITY_EXTRA { get; set; }
 
     [InverseProperty("Mat_Question")]
     public virtual ICollection<MATURITY_QUESTION_PROPS> MATURITY_QUESTION_PROPS { get; set; } = new List<MATURITY_QUESTION_PROPS>();

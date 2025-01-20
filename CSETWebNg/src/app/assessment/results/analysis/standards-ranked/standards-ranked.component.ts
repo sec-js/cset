@@ -27,7 +27,7 @@ import { Router } from '../../../../../../node_modules/@angular/router';
 import { AnalysisService } from '../../../../services/analysis.service';
 import { LayoutService } from '../../../../services/layout.service';
 import { NavigationService } from '../../../../services/navigation/navigation.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 @Component({
   selector: 'app-standards-ranked',
@@ -36,7 +36,7 @@ import { TranslocoService } from '@ngneat/transloco';
   host: { class: 'd-flex flex-column flex-11a' }
 })
 export class StandardsRankedComponent implements OnInit {
-  showChart = false;
+  chartIsVisible = false;
   chart: Chart;
   dataRows: { title: string; rank: string; failed: number; total: number; percent: string; }[];
   initialized = false;
@@ -55,7 +55,7 @@ export class StandardsRankedComponent implements OnInit {
 
   setupChart(x: any) {
     // only show the chart if there is some non-zero data to show
-    this.showChart = x.data.some(x => x > 0);
+    this.chartIsVisible = x.data.some(x => x > 0);
 
     if (this.chart) {
       this.chart.destroy();

@@ -4,7 +4,6 @@
 // 
 // 
 //////////////////////////////// 
-using CSETWebCore.Business.Aggregation;
 using CSETWebCore.Business.Demographic;
 using CSETWebCore.Business.GalleryParser;
 using CSETWebCore.Business.Maturity;
@@ -20,14 +19,14 @@ using CSETWebCore.Interfaces.Question;
 using CSETWebCore.Interfaces.Reports;
 using CSETWebCore.Model.Aggregation;
 using CSETWebCore.Model.Assessment;
-using CSETWebCore.Model.CisaAssessorWorkflow;
 using CSETWebCore.Model.Demographic;
 using CSETWebCore.Model.Reports;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+using System.Data;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 
 
 namespace CSETWebCore.Api.Controllers
@@ -148,8 +147,7 @@ namespace CSETWebCore.Api.Controllers
             int assessmentId = _token.AssessmentForUser();
             _report.SetReportsAssessmentId(assessmentId);
             MaturityReportData data = new MaturityReportData(_context);
-            data.MaturityModels = new List<MaturityReportData.MaturityModel>();
-            data.MaturityModels.Add(_report.GetBasicMaturityModel());
+            data.MaturityModels = [_report.GetBasicMaturityModel()];
             data.information = _report.GetInformation();
 
             return Ok(data);
@@ -395,6 +393,35 @@ namespace CSETWebCore.Api.Controllers
         }
 
 
+        /// <summary>
+        /// Generates and exports an Excel spreadsheet with a POAM template
+        /// </summary>
+        /// <param name="token"></param>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("api/reports/poam/excelexport")]
+        public IActionResult GetExcelExport(string token)
+        {
+
+            int assessmentId = _token.AssessmentForUser(token);
+            string lang = _token.GetCurrentLanguage();
+
+            // Create a memory stream to hold the Excel file
+            using var memoryStream = new MemoryStream();
+            var mm = new MaturityBusiness(_context, _assessmentUtil, _adminTabBusiness).GetMaturityQuestions(assessmentId, true, 0, lang);
+
+            // Generate the Excel file
+            ExportPoamBusiness.GenerateSpreadSheet(memoryStream, mm);
+
+            // Return the file as a downloadable attachment
+            return File(
+                memoryStream.ToArray(),
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                ExportPoamBusiness.GetFilename(assessmentId, _context)
+            );
+
+        }
+
 
         //--------------------------------
         // HYDRO Controllers
@@ -541,6 +568,22 @@ namespace CSETWebCore.Api.Controllers
             data.QuestionsWithAltJust = _report.GetQuestionsWithAlternateJustification();
             return Ok(data);
         }
+        [HttpGet]
+        [Route("api/reports/physicalsummary")]
+        public IActionResult GetPhysicalSummary()
+        {
+            int assessmentId = _token.AssessmentForUser();
+
+            _report.SetReportsAssessmentId(assessmentId);
+            BasicReportData data = new BasicReportData();
+            data.information = _report.GetInformation();
+            data.QuestionsWithSupplementals = _report.GetQuestionsWithSupplementals();
+            data.RankedQuestionsTable = _report.GetRankedQuestions();
+            data.QuestionsWithComments = _report.GetQuestionsWithComments();
+            data.QuestionsMarkedForReview = _report.GetQuestionsMarkedForReview();
+            data.QuestionsWithAltJust = _report.GetQuestionsWithAlternateJustification();
+            return Ok(data);
+        }
 
 
         [HttpGet]
@@ -574,7 +617,7 @@ namespace CSETWebCore.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("api/reports/trendreport")]
+        [Route("api/reports/trend-report")]
         public IActionResult GetTrendReport(int aggregationID)
         {
             AggregationReportData response = new AggregationReportData();
@@ -634,18 +677,13 @@ namespace CSETWebCore.Api.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Route("api/reports/comparereport")]
+        [Route("api/reports/compare-report")]
         public IActionResult GetCompareReport(int aggregationID)
         {
             AggregationReportData response = new AggregationReportData();
             response.SalList = new List<BasicReportData.OverallSALTable>();
             response.DocumentLibraryTable = new List<DocumentLibraryTable>();
 
-            //var aggregationID = _token.PayloadInt("aggreg");
-            //if (aggregationID == null)
-            //{
-            //    return Ok(response);
-            //}
 
             var assessmentList = _aggregation.GetAssessmentsForAggregation((int)aggregationID);
             Aggregation ag = _aggregation.GetAggregation((int)aggregationID);
@@ -773,7 +811,7 @@ namespace CSETWebCore.Api.Controllers
         }
 
 
-        
+
         [HttpGet]
         [Route("api/reports/getCieAllQuestions")]
         public IActionResult GetCieAllQuestions()
@@ -886,6 +924,63 @@ namespace CSETWebCore.Api.Controllers
 
             data.MatAnsweredQuestions = _report.GetCieMfrQuestionList();
             data.Information = _report.GetInformation();
+            return Ok(data);
+        }
+
+
+        [HttpGet]
+        [Route("api/reports/getStandardAnsweredQuestions")]
+        public async Task<IActionResult> GetStandardAnsweredQuestions()
+        {
+            int assessmentId = _token.AssessmentForUser();
+
+            _report.SetReportsAssessmentId(assessmentId);
+            BasicReportData data = new BasicReportData();
+            data.information = _report.GetInformation();
+
+            data.StandardsQuestions = await _report.GetStandardQuestionAnswers(assessmentId);
+
+            // only need answered questions for each standard (yes this should be a stored proc, but I don't have time)
+            //foreach(var standard in data.StandardsQuestions)
+            //{
+            //    standard.Questions = standard.Questions.Where(x => x.Answer != "U").ToList();
+            //}
+
+            // only need answered questions (yes this should be a stored proc, but I don't have time)
+            //data.ComponentQuestions = data.ComponentQuestions.Where(x => x.Answer != "U").ToList();
+
+            return Ok(data);
+        }
+
+
+        [HttpGet]
+        [Route("api/reports/getStandardCommentsAndMfr")]
+        public IActionResult GetStandardCommentsAndMfr()
+        {
+            int assessmentId = _token.AssessmentForUser();
+
+            _report.SetReportsAssessmentId(assessmentId);
+            BasicReportData data = new BasicReportData();
+            data.information = _report.GetInformation();
+
+            data.QuestionsWithComments = _report.GetQuestionsWithComments();
+            data.QuestionsMarkedForReview = _report.GetQuestionsMarkedForReview();
+            return Ok(data);
+        }
+
+
+        [HttpGet]
+        [Route("api/reports/getReviewedQuestions")]
+        public IActionResult GetReviewedQuestions()
+        {
+            int assessmentId = _token.AssessmentForUser();
+
+            _report.SetReportsAssessmentId(assessmentId);
+            BasicReportData data = new BasicReportData();
+            data.information = _report.GetInformation();
+
+            data.QuestionsWithComments = _report.GetQuestionsWithComments();
+            data.QuestionsMarkedForReview = _report.GetQuestionsReviewed();
             return Ok(data);
         }
         //[HttpGet]

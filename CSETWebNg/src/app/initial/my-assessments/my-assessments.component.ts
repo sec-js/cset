@@ -37,15 +37,16 @@ import { Title } from "@angular/platform-browser";
 import { NavigationService } from "../../services/navigation/navigation.service";
 import { QuestionFilterService } from '../../services/filtering/question-filter.service';
 import { ReportService } from '../../services/report.service';
-import { concatMap, map } from "rxjs/operators";
+import { of } from "rxjs";
+import { concatMap, map, tap, catchError } from "rxjs/operators";
 import { NCUAService } from "../../services/ncua.service";
 import { NavTreeService } from "../../services/navigation/nav-tree.service";
 import { LayoutService } from "../../services/layout.service";
 import { Comparer } from "../../helpers/comparer";
-import { ExportPasswordComponent } from '../../dialogs/assessment-encryption/export-password/export-password.component';
+import { ExportAssessmentComponent } from '../../dialogs/assessment-encryption/export-assessment/export-assessment.component';
 import { DateTime } from "luxon";
 import { NcuaExcelExportComponent } from "../../dialogs/excel-export/ncua-export/ncua-excel-export.component";
-import { TranslocoService } from "@ngneat/transloco";
+import { TranslocoService } from "@jsverse/transloco";
 import { DateAdapter } from '@angular/material/core';
 import { HydroService } from "../../services/hydro.service";
 import { CieService } from "../../services/cie.service";
@@ -107,7 +108,7 @@ export class MyAssessmentsComponent implements OnInit {
   disabledEncrypt: boolean = false;
 
   timer = ms => new Promise(res => setTimeout(res, ms));
-  
+
 
   constructor(
     public configSvc: ConfigService,
@@ -161,7 +162,7 @@ export class MyAssessmentsComponent implements OnInit {
 
     if (localStorage.getItem("returnPath")) { }
     else {
-      this.navTreeSvc.clearTree(this.navSvc.getMagic());      
+      this.navTreeSvc.clearTree(this.navSvc.getMagic());
     }
     // if(this.isCF){
     //   this.navTreeSvc.clearNoMatterWhat();
@@ -243,38 +244,31 @@ export class MyAssessmentsComponent implements OnInit {
         this.assessSvc.getAssessments().pipe(
           map((assessments: UserAssessment[]) => {
             assessments.forEach((item, index, arr) => {
-              if(this.isCF){
+              if (this.isCF) {
                 assessmentiDs.push(item.assessmentId);
-                item.isEntry = false;                
+                item.isEntry = false;
               }
-              let type = '';
-              if (item.useDiagram) type += ', Diagram';
-              item.questionAlias = 'questions';
-              if (item.useMaturity) {
-                type += ', ' + item.selectedMaturityModel;
-                if (item.selectedMaturityModel === 'ISE') {
-                  item.questionAlias = 'statements';
-                }
-              }
-              if (item.useStandard && item.selectedStandards) type += ', ' + item.selectedStandards;
-              if (type.length > 0) type = type.substring(2);
-              item.type = type;
+
+              // determine assessment type display
+              item.type = this.determineAssessmentType(item);
+
+
               let currentAssessmentStats = assessmentsCompletionData.find(x => x.assessmentId === item.assessmentId);
               item.completedQuestionsCount = currentAssessmentStats?.completedCount;
               item.totalAvailableQuestionsCount =
                 (currentAssessmentStats?.totalMaturityQuestionsCount ?? 0) +
                 (currentAssessmentStats?.totalDiagramQuestionsCount ?? 0) +
-                (currentAssessmentStats?.totalStandardQuestionsCount ?? 0);              
+                (currentAssessmentStats?.totalStandardQuestionsCount ?? 0);
             });
-            if(this.isCF){
+            if (this.isCF) {
               this.conversionSvc.isEntryCfAssessments(assessmentiDs).subscribe(
                 (result: any) => {
                   result.forEach((element: any) => {
                     let assessment = assessments.find(x => x.assessmentId === element.assessmentId);
                     if (assessment) {
                       assessment.isEntry = element.isEntry;
-                      assessment.isEntryString = element.isEntry ? 'Entry' : 'Full';                        
-                      if(assessment.isEntry)
+                      assessment.isEntryString = element.isEntry ? 'Entry' : 'Full';
+                      if (assessment.isEntry)
                         assessment.totalAvailableQuestionsCount = 20;
                     }
                   });
@@ -282,7 +276,7 @@ export class MyAssessmentsComponent implements OnInit {
                 }
               );
             }
-            else{
+            else {
               this.sortedAssessments = assessments;
             }
           },
@@ -298,6 +292,43 @@ export class MyAssessmentsComponent implements OnInit {
         ))).subscribe();
   }
 
+  /**
+   * 
+   */
+  determineAssessmentType(item: UserAssessment) {
+    let type = '';
+
+    if (item.useDiagram) type += ', Diagram';
+    item.questionAlias = 'questions';
+
+    if (item.useMaturity) {
+      type += ', ' + this.getMaturityModelShortName(item);
+      if (item.selectedMaturityModel === 'ISE') {
+        item.questionAlias = 'statements';
+      }
+    }
+    if (item.useStandard && item.selectedStandards) type += ', ' + item.selectedStandards;
+    if (type.length > 0) type = type.substring(2);
+
+    return type;
+  }
+
+  /**
+   * Tries to find a "model short title" in the language files.
+   * If it can't find a defintion, just use the selected model's title.
+   */
+  getMaturityModelShortName(a: UserAssessment) {
+    const key = `modules.${a.selectedMaturityModel.toLowerCase()}.model short title`;
+    const val = this.tSvc.translate(key);
+    if (key == val) {
+      return a.selectedMaturityModel;
+    }
+    return val;
+  }
+
+  /**
+   * 
+   */
   hasPath(rpath: string) {
     if (rpath != null) {
       localStorage.removeItem("returnPath");
@@ -305,48 +336,57 @@ export class MyAssessmentsComponent implements OnInit {
     }
   }
 
+  /**
+   * "Deletes" an assessment by removing the current user from it.  The assessment
+   * is not deleted, but will no longer appear in the current user's list.
+   */
   removeAssessment(assessment: UserAssessment, assessmentIndex: number) {
-    // first, call the API to see if this is a legal move
-    this.assessSvc
-      .isDeletePermitted(assessment.assessmentId)
-      .subscribe(canDelete => {
-        if (!canDelete) {
-          this.dialog.open(AlertComponent, {
-            data: {
-              messageText:
-                "You cannot remove an assessment that has other users."
+    // first, get a token branded for the target assessment
+    this.assessSvc.getAssessmentToken(assessment.assessmentId).then(() => {
+
+      // next, call the API to see if this is a legal move
+      this.assessSvc
+        .isDeletePermitted()
+        .subscribe(canDelete => {
+          if (!canDelete) {
+            this.dialog.open(AlertComponent, {
+              data: {
+                messageText:
+                  "You cannot remove an assessment that has other users."
+              }
+            });
+            return;
+          }
+
+          // if it's legal, see if they really want to
+          const dialogRef = this.dialog.open(ConfirmComponent);
+          dialogRef.componentInstance.confirmMessage =
+            this.tSvc.translate('dialogs.remove assessment', { assessmentName: assessment.assessmentName });
+
+          dialogRef.afterClosed().subscribe(result => {
+            if (result) {
+              this.assessSvc.removeMyContact(assessment.assessmentId).pipe(
+                tap(() => {
+                  this.sortedAssessments.splice(assessmentIndex, 1);
+                }),
+                catchError(error => {
+                  this.dialog.open(AlertComponent, {
+                    data: { messageText: error.statusText }
+                  });
+                  return of(null);
+                })
+              ).subscribe();
             }
           });
-          return;
-        }
-
-        // if it's legal, see if they really want to
-        const dialogRef = this.dialog.open(ConfirmComponent);
-        dialogRef.componentInstance.confirmMessage =
-          // "Are you sure you want to remove '" +
-          // assessment.assessmentName +
-          // "'?";
-          this.tSvc.translate('dialogs.remove assessment', { assessmentName: assessment.assessmentName });
-        dialogRef.afterClosed().subscribe(result => {
-          if (result) {
-            this.assessSvc.removeMyContact(assessment.assessmentId).subscribe(
-              x => {
-                this.sortedAssessments.splice(assessmentIndex, 1);
-              },
-              x => {
-                this.dialog.open(AlertComponent, {
-                  data: { messageText: x.statusText }
-                });
-              });
-          }
         });
-      });
+    });
   }
 
+  /**
+   * 
+   */
   sortData(sort: Sort) {
-
     if (!sort.active || sort.direction === "") {
-      // this.sortedAssessments = data;
       return;
     }
 
@@ -371,54 +411,62 @@ export class MyAssessmentsComponent implements OnInit {
     });
   }
 
+  /**
+   * 
+   */
   logout() {
     this.authSvc.logout();
   }
 
+  /**
+   * 
+   */
   clickDownloadLink(ment_id: number, jsonOnly: boolean = false) {
-    if (!this.preventEncrypt) {
-      let dialogRef = this.dialog.open(ExportPasswordComponent);
+    let encryption = this.preventEncrypt;
+    // Only allow encryption on .csetw files and only allow PCII scrubbing on JSON files
+    if (!this.preventEncrypt || jsonOnly) {
+      let dialogRef = this.dialog.open(ExportAssessmentComponent, {
+        data: { jsonOnly, encryption }
+      });
       dialogRef.afterClosed().subscribe(result => {
+        if (result) {
 
-        // get short-term JWT from API
-        this.authSvc.getShortLivedTokenForAssessment(ment_id).subscribe((response: any) => {
-          let url = this.fileSvc.exportUrl + "?token=" + response.token;
+          // get short-term JWT from API
+          this.authSvc.getShortLivedTokenForAssessment(ment_id).subscribe((response: any) => {
+            let url = this.fileSvc.exportUrl + "?token=" + response.token;
 
-          if (jsonOnly) {
-            url = this.fileSvc.exportJsonUrl + "?token=" + response.token;
-          }
 
-          if (result.password != null && result.password != "") {
-            url = url + "&password=" + result.password;
-          }
+            if (jsonOnly) {
+              url = this.fileSvc.exportJsonUrl + "?token=" + response.token;
+            }
 
-          if (result.hint != null && result.hint != "") {
-            url = url + "&passwordHint=" + result.hint;
-          }
 
-          //if electron
-          window.location.href = url;
+            if (result.scrubData) {
+              url = url + "&scrubData=" + result.scrubData;
+            }
 
-          //if browser
-          //window.open(url, "_blank");
-        });
+            if (result.encryptionData.password != null && result.encryptionData.password != "") {
+              url = url + "&password=" + result.encryptionData.password;
+            }
+
+            if (result.encryptionData.hint != null && result.encryptionData.hint != "") {
+              url = url + "&passwordHint=" + result.encryptionData.hint;
+            }
+
+
+            //if electron
+            window.location.href = url;
+
+          });
+        }
       });
     } else {
+      // If encryption is turned off
       this.authSvc.getShortLivedTokenForAssessment(ment_id).subscribe((response: any) => {
         let url = this.fileSvc.exportUrl + "?token=" + response.token;
-
-        if (jsonOnly) {
-          url = this.fileSvc.exportJsonUrl + "?token=" + response.token;
-        }
-
-        //if electron
         window.location.href = url;
-
-        //if browser
-        //window.open(url, "_blank");
-      });
+      })
     }
-
   }
 
   /**

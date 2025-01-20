@@ -5,22 +5,14 @@
 // 
 //////////////////////////////// 
 using CSETWebCore.DataLayer.Model;
-using Microsoft.EntityFrameworkCore;
 using Nelibur.ObjectMapper;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
 using System.Text;
-using System.Text.RegularExpressions;
-using CSETWebCore.Model.AssessmentIO;
-using CSETWebCore.Helpers;
-using Ionic.Zip;
-using Microsoft.IdentityModel.Tokens;
+using ICSharpCode.SharpZipLib.Zip;
 using CSETWebCore.Business.Demographic.DemographicIO.Models;
-using CSETWebCore.Business.Demographic.DemographicIO; 
+using CSETWebCore.Business.Demographic.DemographicIO;
 
 
 
@@ -29,7 +21,6 @@ namespace CSETWebCore.Business.Demographic.Export
     public class DemographicsExportManager
     {
         private readonly CSETContext _context;
-        private readonly IDictionary<int, string> demographics;
 
         public DemographicsExportManager(CSETContext context)
         {
@@ -108,7 +99,7 @@ namespace CSETWebCore.Business.Demographic.Export
             var archiveStream = new MemoryStream();
             var model = CopyForExport(assessmentId);
 
-            using (var archive = new ZipFile())
+            using (var archive = new ZipOutputStream(archiveStream))
             {
                 var json = JsonConvert.SerializeObject(model, Formatting.Indented);
 
@@ -143,8 +134,5 @@ namespace CSETWebCore.Business.Demographic.Export
 
             return new DemographicsExportFile(fileName, assessmentFileContents);
         }
-
-
-        
     }
 }

@@ -63,24 +63,7 @@ namespace CSETWebCore.Api.Controllers
             var logToFile = LogManager.GetLogger("DBManager");
             logToFile.Info(text);
 
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("api/version")]
-        public IActionResult GetCsetVersion()
-        {
-            try
-            {
-                var dbVersion = _context.CSET_VERSION.FirstOrDefault();
-                return Ok(dbVersion);
-            }
-            catch (Exception exc)
-            {
-                var logToDb = LogManager.GetCurrentClassLogger();
-                logToDb.Error(exc.ToString());
-                return Ok(exc.ToString());
-            }
+            return Ok($"Complete at {DateTime.UtcNow} UTC");
         }
     }
 }

@@ -35,7 +35,7 @@ import { AcetFilteringService } from '../../../services/filtering/maturity-filte
 import { MaturityFilteringService } from '../../../services/filtering/maturity-filtering/maturity-filtering.service';
 import { CompletionService } from '../../../services/completion.service';
 import { ACETService } from '../../../services/acet.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 
 @Component({
@@ -121,7 +121,7 @@ export class MaturityQuestionsAcetComponent implements OnInit, AfterViewInit {
         this.groupings = response.groupings;
         this.assessSvc.assessment.maturityModel.maturityTargetLevel = response.maturityTargetLevel;
         this.assessSvc.assessment.maturityModel.answerOptions = response.answerOptions;
-        this.filterSvc.answerOptions = response.answerOptions;
+        this.filterSvc.answerOptions = response.answerOptions.slice();
         this.filterSvc.maturityModelId = response.modelId;
         this.filterSvc.maturityModelName = response.modelName;
 

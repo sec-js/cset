@@ -1800,6 +1800,10 @@ public partial class CsetwebContext : DbContext
         modelBuilder.Entity<MATURITY_EXTRA>(entity =>
         {
             entity.Property(e => e.Maturity_Question_Id).ValueGeneratedNever();
+
+            entity.HasOne(d => d.Maturity_Question).WithOne(p => p.MATURITY_EXTRA)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_mat_questions");
         });
 
         modelBuilder.Entity<MATURITY_GROUPINGS>(entity =>
@@ -2786,6 +2790,7 @@ public partial class CsetwebContext : DbContext
         });
         modelBuilder.HasSequence<int>("MaturityNodeSequence");
 
+        OnModelCreatingGeneratedFunctions(modelBuilder);
         OnModelCreatingPartial(modelBuilder);
     }
 

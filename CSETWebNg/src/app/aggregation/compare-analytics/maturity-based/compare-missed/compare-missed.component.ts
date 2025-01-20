@@ -25,7 +25,7 @@ import { Component, OnInit } from '@angular/core';
 import { AggregationService } from '../../../../services/aggregation.service';
 
 @Component({
-  selector: 'app-compare-maturity-missed',
+  selector: 'app-compare-missed-maturity',
   templateUrl: './compare-missed.component.html',
   // eslint-disable-next-line
   host: { class: 'd-flex flex-column flex-11a' }
@@ -34,16 +34,28 @@ export class CompareMaturityMissedComponent implements OnInit {
 
   missedQuestions: [] = null;
 
+  /**
+   * 
+   */
   constructor(
     public aggregationSvc: AggregationService
   ) { }
 
+  /**
+   * 
+   */
   ngOnInit() {
-    const aggregationId = this.aggregationSvc.id();
-
     this.aggregationSvc.getMaturityMissedQuestions().subscribe((resp: any) => {
-      this.missedQuestions = resp;
+      this.missedQuestions = resp.missedQuestions;
+
+      // determine the appropriate text to be displayed for the questions
+      this.missedQuestions.forEach((q: any) => {
+        q.displayText = q.questionText;
+
+        if (!!q.securityPractice) {
+          q.displayText = q.securityPractice;
+        }
+      });
     });
   }
-
 }

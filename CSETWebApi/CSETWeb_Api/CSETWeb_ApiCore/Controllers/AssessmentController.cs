@@ -267,6 +267,7 @@ namespace CSETWebCore.Api.Controllers
 
         [HttpGet]
         [Route("api/getAssessmentById")]
+        [Obsolete("Method no longer in use.")]
         public IActionResult GetAssessmentById(int assessmentId)
         {
             var assessment = _assessmentBusiness.GetAssessmentById(assessmentId);
@@ -487,6 +488,25 @@ namespace CSETWebCore.Api.Controllers
         {
 
             return Ok(this._assessmentBusiness.GetAssessmentDocuments(id1, id2, id3, id4, id5, id6, id7, id8, id9, id10));
+        }
+        
+        [HttpGet]
+        [Route("api/assessmentCreator")]
+        public IActionResult AssessmentCreator()
+        {
+            try
+            {
+                int assessmentId = _tokenManager.AssessmentForUser();
+                var creatorId = this._assessmentBusiness.GetAssessmentCreator((assessmentId));
+
+                return Ok(creatorId);
+            }
+            catch (Exception exc)
+            {
+                NLog.LogManager.GetCurrentClassLogger().Error($"... {exc}");
+            }
+
+            return null;
         }
     }
 }

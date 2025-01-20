@@ -8,21 +8,35 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using CSETWebCore.Business.User;
 using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Interfaces.Aggregation;
+using CSETWebCore.Interfaces.Helpers;
 using CSETWebCore.Model.Aggregation;
+using Lucene.Net.Analysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace CSETWebCore.Business.Aggregation
 {
+    /// <summary>
+    /// This class is used for aggregating standards-based assessments.
+    /// For maturity-based aggregation, see AggregationMaturityBusiness.
+    /// </summary>
     public class AggregationBusiness : IAggregationBusiness
     {
         private readonly CSETContext _context;
+        private readonly ITokenManager _tokenManager;
 
-        public AggregationBusiness(CSETContext context)
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public AggregationBusiness(CSETContext context, ITokenManager tokenManager)
         {
             _context = context;
+            _tokenManager = tokenManager;
         }
+
 
         /// <summary>
         /// Returns a list of AGGREGATION_INFORMATION records for the specified type, Trend or Compare.
@@ -95,6 +109,10 @@ namespace CSETWebCore.Business.Aggregation
                 Mode = mode
             };
 
+
+            // TODO:  it might be good to add a column that holds the aggregation originator's userid
+
+
             // Commit the new assessment
             int aggregationId = SaveAggregationInformation(0, newAgg);
             newAgg.AggregationId = aggregationId;
@@ -118,13 +136,30 @@ namespace CSETWebCore.Business.Aggregation
                 return null;
             }
 
+
+            string assessorName = agg.Assessor_Name;
+
+            // If no assessor name stored, get the name of the current user.  
+            // Because there are multiple assessments involved, it doesn't make sense to use
+            // one of the assessors because they could be different on all the assessments.
+            if (String.IsNullOrEmpty(assessorName))
+            {
+                int? userId = _tokenManager.GetCurrentUserId();
+                var user = _context.USERS.SingleOrDefault(x => x.UserId == userId);
+                if (user != null)
+                {
+                    assessorName = UserBusiness.FullName(user);
+                }
+            }
+
+
             return new CSETWebCore.Model.Aggregation.Aggregation()
             {
                 AggregationDate = agg.Aggregation_Date,
                 AggregationId = agg.AggregationID,
                 AggregationName = agg.Aggregation_Name,
                 Mode = agg.Aggregation_Mode,
-                AssessorName = agg.Assessor_Name
+                AssessorName = assessorName
             };
         }
 
@@ -242,9 +277,9 @@ namespace CSETWebCore.Business.Aggregation
             resp.Aggregation.QuestionsCompatibility = CalcCompatibility("Q", resp.Assessments.Select(x => x.AssessmentId).ToList());
             resp.Aggregation.RequirementsCompatibility = CalcCompatibility("R", resp.Assessments.Select(x => x.AssessmentId).ToList());
 
-
             return resp;
         }
+
 
         /// <summary>
         /// Looks for the lowest letter that has not yet been used as an alias in 
@@ -279,7 +314,6 @@ namespace CSETWebCore.Business.Aggregation
         /// <param name="selected"></param>
         public CSETWebCore.Model.Aggregation.Aggregation SaveAssessmentSelection(int aggregationId, int assessmentId, bool selected)
         {
-
             var aa = _context.AGGREGATION_ASSESSMENT.Where(x => x.Aggregation_Id == aggregationId && x.Assessment_Id == assessmentId).FirstOrDefault();
 
             if (selected)

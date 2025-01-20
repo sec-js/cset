@@ -63,36 +63,42 @@ export class DiagramComponentsComponent implements OnInit {
   /**
    *
    */
-  ngOnInit() {
-    this.getComponents();
-    this.getSymbols();
+  ngOnInit() {    
+    
+    this.diagramSvc.getDiagramDataObservable().subscribe((data) => {      
+      const z = data.components.filter(y => y.assetType != 'Connector');
+      this.diagramComponentList = z;
+      this.getComponents();
+      this.getSymbols(data.symbols);  
+    });
+    
   }
 
   /**
    *
    */
   getComponents() {
-    this.diagramSvc.getDiagramComponents().subscribe((x: any) => {
-      this.diagramComponentList = x;
-      this.componentsChange.emit(this.diagramComponentList);
-    });
+      // remove 'Connector' entries from the inventory list to reduce clutter and confusion      
+      this.componentsChange.emit(this.diagramComponentList);    
   }
 
   /**
    * Gets the full list of symbols so that we 
    * can build SELECT controls for Asset Type.
    */
-  getSymbols() {
-    this.diagramSvc.getSymbols().subscribe((g: any) => {
+  getSymbols(g: any[]) {
       this.symbols = [];
+
       g.forEach(gg => {
         gg.symbols.forEach(s => {
           this.symbols.push(s);
         });
       });
 
+      // don't include 'Connector' in symbol select for inventory
+      this.symbols = this.symbols.filter(s => s.symbol_Name != 'Connector');
+
       this.symbols.sort((a, b) => a.symbol_Name.localeCompare(b.symbol_Name));
-    });
   }
 
   /**

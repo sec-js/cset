@@ -24,6 +24,16 @@ SOFTWARE.
 @use '../../../node_modules/bootstrap/dist/css/bootstrap.min.css';
 /* ---- Report styles ---- */
 
+$primary-color: #052637;
+$secondary-color: #094997;
+
+$gray-50: #fafafa;
+$gray-100: #f2f2f2;
+
+$primary-550: $primary-color;
+$primary-900: $secondary-color;
+
+
 * {
   font-family: Arial, sans-serif;
 }
@@ -394,7 +404,6 @@ table.cset-table.alt-shade tr:nth-child(odd) {
 }
 
 
-
 table.related-questions {
   width: 100%;
   border-collapse: collapse;
@@ -479,14 +488,101 @@ table.td-padding-half-rem td {
 
 .shaded-red td {
   background-color: #ffe7e7;
+
   @media print {
-     background-color: #ffe7e7 !important;
+    background-color: #ffe7e7 !important;
   }
 }
 
 .text-underline {
   text-decoration: underline !important;
 }
+
+
+
+table.assessment-summary {
+  width: 100%;
+  color: $primary-color;
+}
+
+// hide some columns in phone mode
+table.assessment-summary tr:nth-child(even) {
+  background: $gray-100;
+}
+
+table.assessment-summary tr:nth-child(odd) {
+  background: $gray-50;
+}
+
+table.assessment-summary th:nth-child(1) {
+  padding-left: 12px;
+}
+
+table.assessment-summary td {
+  padding: 0.2rem 0.5rem;
+}
+
+table.assessment-summary th {
+  background-color: $secondary-color;
+  color: $gray-50;
+  font-weight: 500;
+  padding: .5rem;
+}
+
+.table.table-td-p1 th, .table.table-td-p1 td {
+  padding: .25rem !important;
+}
+
+.table.table-td-p2 th, .table.table-td-p2 td {
+  padding: .5rem !important;
+}
+
+.table.table-td-small th, .table.table-td-small td {
+  font-size: .875em !important;
+}
+
+// force transparent
+.table>:not(caption)>*>* {
+  background-color: transparent !important;
+}
+
+/*
+@media only screen and (max-width: 1200px) {
+  table.assessment-summary td > button > span {
+    display: none;
+  }
+}
+@media only screen and (max-width: 992px) {
+  table.assessment-summary td > button > span {
+    display: none;
+  }
+}
+@media only screen and (max-width: 767px) {
+  table.assessment-summary td:nth-child(2),
+  table.assessment-summary th:nth-child(2) {
+    display: none;
+  }
+
+  table.assessment-summary td:nth-child(3),
+  table.assessment-summary th:nth-child(3) {
+    display: none;
+  }
+}
+
+@media only screen and (max-width: 360px) {
+  table.assessment-summary td:nth-child(2),
+  table.assessment-summary th:nth-child(2) {
+    display: none;
+  }
+  table.assessment-summary td:nth-child(3),
+  table.assessment-summary th:nth-child(3) {
+    display: none;
+  }
+  table.assessment-summary td:nth-child(4),
+  table.assessment-summary th:nth-child(4) {
+    display: none;
+  }
+}*/
 
 /* ---- signature styles ---- */
 
@@ -1833,14 +1929,33 @@ div.spinner-size-50 {
 
 
 
-///   CPG Styles ////////////////////////////////////////////////
+///   Supplemental Guidance Styles ////////////////////////////////////////////////
+
 .sub-header-1 {
   font-weight: bold;
-  font-size: 1.05rem;
+  font-size: 1.1rem;
+  color: $primary-550;
 }
 
+.sub-header-2 {
+  font-weight: bold;
+  font-size: 1rem;
+  color: $primary-900;
+}
 
+ol.alpha-bracket {
+  list-style-type: none;
+  counter-reset: list-counter;
+}
 
+ol.alpha-bracket li {
+  counter-increment: list-counter;
+  margin-bottom: 5px;
+}
+
+ol.alpha-bracket li::before {
+  content: "[" counter(list-counter, lower-alpha) "] ";
+}
 
 
 
@@ -1849,6 +1964,7 @@ div.spinner-size-50 {
   border-top-right-radius: 0 !important;
   border-bottom-right-radius: 0 !important;
 }
+
 .cie-questions-header-expand-button-radius {
   border-top-left-radius: 0 !important;
   border-bottom-left-radius: 0 !important;
@@ -2130,6 +2246,7 @@ div.spinner-size-50 {
   border-radius: 4px;
   padding: .3em;
   margin: 4px 0;
+  text-align: center;
 }
 
 .score-container div:nth-child(1) {
@@ -2155,7 +2272,8 @@ div.spinner-size-50 {
 
 /////////// custom checkbox and radio styles
 
-$secondary-color: #094997;
+
+
 
 .checkbox-custom,
 .radio-custom {
@@ -2241,11 +2359,11 @@ $secondary-color: #094997;
   fill: white;
 }
 
-.btn-secondary > Label {
+.btn-secondary>Label {
   font-weight: 500;
 }
 
-.btn-secondary:hover > Label {
+.btn-secondary:hover>Label {
   color: white;
   fill: white;
 }
@@ -2253,4 +2371,5 @@ $secondary-color: #094997;
 .btn-secondary:disabled {
   fill: white;
 }
+
 //////////////////////////////////////////////////////////////////

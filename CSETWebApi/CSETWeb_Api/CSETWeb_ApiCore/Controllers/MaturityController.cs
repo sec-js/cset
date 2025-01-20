@@ -171,6 +171,11 @@ namespace CSETWebCore.Api.Controllers
         }
 
 
+        /// <summary>
+        /// TODO: Cannot find this endpoint name in the UI codebase
+        /// </summary>
+        /// <param name="mat_model_id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("api/MaturityModel/GetLevelScoresByGroup")]
         public IActionResult GetLevelScoresByGroup(int mat_model_id)
@@ -178,18 +183,6 @@ namespace CSETWebCore.Api.Controllers
             int assessmentId = _tokenManager.AssessmentForUser();
             return Ok(new MaturityBusiness(_context, _assessmentUtil, _adminTabBusiness)
                 .Get_LevelScoresByGroup(assessmentId, mat_model_id));
-        }
-
-
-        /// <summary>        
-        /// </summary>
-        [HttpGet]
-        [Route("api/SPRSScore")]
-        public IActionResult GetSPRSScore()
-        {
-            int assessmentId = _tokenManager.AssessmentForUser();
-
-            return Ok(new MaturityBusiness(_context, _assessmentUtil, _adminTabBusiness).GetSPRSScore(assessmentId));
         }
 
 
@@ -225,7 +218,8 @@ namespace CSETWebCore.Api.Controllers
             int assessmentId = _tokenManager.AssessmentForUser();
 
             var biz = new MaturityBusiness(_context, _assessmentUtil, _adminTabBusiness);
-            var x = biz.GetMaturityStructureAsXml(assessmentId, true);
+            var options = new StructureOptions() { IncludeQuestionText = true, IncludeSupplemental = true, IncludeOtherText = true };
+            var x = biz.GetMaturityStructureAsXml(assessmentId, options);
 
 
             var j = "";
@@ -389,6 +383,7 @@ namespace CSETWebCore.Api.Controllers
                 resp.AnswerOptions.ForEach(x => x = x.Trim());
             }
 
+            resp.GroupingId = groupingId;
             resp.Title = grouping.Title;
             resp.Description = grouping.Description;
             resp.Description_Extended = grouping.Description_Extended;
@@ -655,8 +650,8 @@ namespace CSETWebCore.Api.Controllers
             int assessmentId = _tokenManager.AssessmentForUser();
 
             var biz = new NestedStructure(assessmentId, 0, _context);
-            List<Grouping> filteredGroupingsU = new List<Grouping>();
-            List<Grouping> filteredGroupingsS = new List<Grouping>();
+            List<Model.Nested.Grouping> filteredGroupingsU = new List<Model.Nested.Grouping>();
+            List<Model.Nested.Grouping> filteredGroupingsS = new List<Model.Nested.Grouping>();
 
             foreach (var b in biz.MyModel.Groupings)
             {
@@ -702,7 +697,7 @@ namespace CSETWebCore.Api.Controllers
 
                 if (questionsU.Any())
                 {
-                    filteredGroupingsU.Add(new Grouping
+                    filteredGroupingsU.Add(new Model.Nested.Grouping
                     {
                         Title = b.Title,
                         Questions = questionsU
@@ -710,7 +705,7 @@ namespace CSETWebCore.Api.Controllers
                 }
                 if (questionsS.Any())
                 {
-                    filteredGroupingsS.Add(new Grouping
+                    filteredGroupingsS.Add(new Model.Nested.Grouping
                     {
                         Title = b.Title,
                         Questions = questionsS
@@ -732,10 +727,10 @@ namespace CSETWebCore.Api.Controllers
             int assessmentId = _tokenManager.AssessmentForUser();
 
             var biz = new NestedStructure(assessmentId, 0, _context);
-            List<Grouping> filteredGroupingsYes = new List<Grouping>();
-            List<Grouping> filteredGroupingsNo = new List<Grouping>();
-            List<Grouping> filteredGroupingsNa = new List<Grouping>();
-            List<Grouping> filteredGroupingsU = new List<Grouping>();
+            List<Model.Nested.Grouping> filteredGroupingsYes = new List<Model.Nested.Grouping>();
+            List<Model.Nested.Grouping> filteredGroupingsNo = new List<Model.Nested.Grouping>();
+            List<Model.Nested.Grouping> filteredGroupingsNa = new List<Model.Nested.Grouping>();
+            List<Model.Nested.Grouping> filteredGroupingsU = new List<Model.Nested.Grouping>();
 
             foreach (var b in biz.MyModel.Groupings)
             {
@@ -803,7 +798,7 @@ namespace CSETWebCore.Api.Controllers
 
                 if (questionsYes.Any())
                 {
-                    filteredGroupingsYes.Add(new Grouping
+                    filteredGroupingsYes.Add(new Model.Nested.Grouping
                     {
                         Title = b.Title,
                         Questions = questionsYes
@@ -812,7 +807,7 @@ namespace CSETWebCore.Api.Controllers
 
                 if (questionsNo.Any())
                 {
-                    filteredGroupingsNo.Add(new Grouping
+                    filteredGroupingsNo.Add(new Model.Nested.Grouping
                     {
                         Title = b.Title,
                         Questions = questionsNo
@@ -821,7 +816,7 @@ namespace CSETWebCore.Api.Controllers
 
                 if (questionsNa.Any())
                 {
-                    filteredGroupingsNa.Add(new Grouping
+                    filteredGroupingsNa.Add(new Model.Nested.Grouping
                     {
                         Title = b.Title,
                         Questions = questionsNa
@@ -830,7 +825,7 @@ namespace CSETWebCore.Api.Controllers
 
                 if (questionsU.Any())
                 {
-                    filteredGroupingsU.Add(new Grouping
+                    filteredGroupingsU.Add(new Model.Nested.Grouping
                     {
                         Title = b.Title,
                         Questions = questionsU
@@ -1026,6 +1021,7 @@ namespace CSETWebCore.Api.Controllers
 
         [HttpGet]
         [Route("api/maturity/mvra/mvraTree")]
+        [Obsolete("No longer in use")]
         public IActionResult GetMvraTree([FromQuery] int id)
         {
             //int assessemntId = _tokenManager.AssessmentForUser();

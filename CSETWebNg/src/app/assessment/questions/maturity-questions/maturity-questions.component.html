@@ -25,7 +25,7 @@
   <div class="flex-column flex-wrap justify-content-between align-items-start flex-11a mb-4">
 
     <div class="d-flex flex-row flex-wrap sticky-sal w-100 justify-content-end align-items-start flex-11a pb-3">
-      <div class="mr-3 answered-count" *ngIf="!!groupings" matTooltip="{{t('tooltip.answered count')}}">
+      <div class="me-3 answered-count" *ngIf="!!groupings" matTooltip="{{t('tooltip.answered count')}}">
         {{ completionSvc.answeredCount }}/{{ completionSvc.totalCount }}
       </div>
       <div>
@@ -43,9 +43,9 @@
     </div>
 
     <div class="d-block mb-2">
-      <h2 *ngIf="groupings?.length != 0">{{ pageTitle }}</h2>
+      <h3>{{ pageTitle }}</h3>
 
-      <h3>{{ groupingTitle }}</h3>
+      <h4>{{ groupingTitle }}</h4>
 
       <div class="mb-2" *ngIf="showTargetLevel">
         The target maturity level for this assessment is set to
@@ -53,7 +53,7 @@
       </div>
     </div>
 
-    <div *ngIf="!!groupings && !areGroupingsVisible()"
+    <div *ngIf="!!groupings && !areGroupingsVisible() && modelSupportsTargetLevel"
       class="alert-warning mt-4 mb-4 d-flex flex-row justify-content-center align-items-center flex-11a">
       <span class="p-md-3 p-2 fs-large cset-icons-exclamation-triangle"></span>
       <span class="fs-base-3 p-2 d-flex flex-column justify-content-center flex-11a">
@@ -78,31 +78,6 @@
       </p>
     </ng-container>
 
-    <div class="mb-4" *ngIf="this.assessSvc.assessment?.maturityModel?.modelId == 11">
-      <strong>{{t('questions.cpg answer key')}}</strong>
-      <ul style="list-style-type: none;">
-        <li><span
-            style="background-color:#006000; width: 20px; height: 20px; display: inline-block; vertical-align: middle"></span>
-          {{t('answer-options.button-tooltips.imp-cpg')}}
-        </li>
-        <li>
-          <span
-            style="background-color:#0a4b6e; width: 20px; height: 20px; display: inline-block; vertical-align: middle"></span>
-          {{t('answer-options.button-tooltips.prog-cpg')}}
-        </li>
-        <li>
-          <span
-            style="background-color:#b17300; width: 20px; height: 20px; display: inline-block; vertical-align: middle"></span>
-          {{t('answer-options.button-tooltips.scoped-cpg')}}
-        </li>
-        <li>
-          <span
-            style="background-color:#990000; width: 20px; height: 20px; display: inline-block; vertical-align: middle"></span>
-          {{t('answer-options.button-tooltips.not-cpg')}}
-        </li>
-      </ul>
-    </div>
-
     <div *ngIf="!groupings" class="w-100">
       <div class="spinner-container" style="margin: 2em auto">
         <div style="max-width: 50px; max-height: 50px;"></div>
@@ -114,7 +89,6 @@
         <app-grouping-block [grouping]="g"></app-grouping-block>
       </div>
     </ng-template>
-
   </div>
 
   <app-nav-back-next *ngIf="isNcuaModel()" [page]="'maturity-questions-ncua'"></app-nav-back-next>

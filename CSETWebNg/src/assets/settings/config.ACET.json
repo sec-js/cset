@@ -2,7 +2,8 @@
     "installationMode": "ACET",
     "galleryLayout": "ACET",
     "behaviors": {
-        "defaultTitle": "TOOLBOX",
+        "defaultTitle": "ACET",
+        "clientCode": "NCUA",
         "showModuleBuilder": true,
         "showAssessmentDocuments": false,
         "showAggregation": true,

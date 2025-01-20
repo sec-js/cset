@@ -300,27 +300,9 @@ label[required]::after {
   color: $validation-color;
 }
 
-.dhs-seal-background {
-  background-image: url("/assets/images/CISA_Logo_1831px.png");
-  background-repeat: no-repeat;
-  background-position: center bottom;
-  background-size: contain;
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  z-index: -1;
-  bottom: 80px;
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  opacity: 0.1;
-}
-
 .bg-semi-trans {
   background-color: rgba(255, 255, 255, 0.6);
 }
-
-
 
 .z-10 {
   z-index: 10;
@@ -538,6 +520,24 @@ table.assessment-summary th {
   font-weight: 500;
   padding: .5rem;
 }
+
+.table.table-td-p1 th, .table.table-td-p1 td {
+  padding: .25rem !important;
+}
+
+.table.table-td-p2 th, .table.table-td-p2 td {
+  padding: .5rem !important;
+}
+
+.table.table-td-small th, .table.table-td-small td {
+  font-size: .875em;
+}
+
+// force transparent
+.table>:not(caption)>*>* {
+  background-color: transparent !important;
+}
+
 
 table.paddingBetweenCols td,
 table.paddingBetweenCols th {
@@ -879,6 +879,7 @@ table.td-align-top td {
 
 .btn-app-mode.active {
   background-color: $secondary-color;
+  border-color: $secondary-color;
   color: $gray-100;
 }
 
@@ -2104,7 +2105,7 @@ ul.related-questions li {
 
 .domain-group-heading {
   margin-bottom: 1rem;
-  font-size: 2rem;
+  font-size: 1.5rem;
 }
 
 .capability-group-heading {
@@ -2125,6 +2126,7 @@ ul.related-questions li {
   border-radius: 4px;
   padding: 0.3em;
   margin: 4px 0;
+  text-align: center;
 }
 
 .score-container div:nth-child(1) {
@@ -2154,8 +2156,8 @@ ul.related-questions li {
   background-color: $secondary-color;
 }
 
-mat-sidenav {
-  background-color: $secondary-color; //$primary-350;
+mat-sidenav.mat-sidenav {
+  background-color: $secondary-color;
   color: $white;
   width: 300px;
 }
@@ -2788,7 +2790,7 @@ hr.ranked-questions {
   overflow-x: hidden !important;
 }
 
-.text-left {
+.text-start {
   text-align: left !important;
 }
 
@@ -2836,8 +2838,8 @@ table.td-p-2 td {
   padding: 0.5rem !important;
 }
 
-table.td-text-left th,
-table.td-text-left td {
+table.td-text-start th,
+table.td-text-start td {
   text-align: left !important;
 }
 

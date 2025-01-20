@@ -22,7 +22,7 @@
 //
 ////////////////////////////////
 import { map } from 'rxjs/operators';
-import { timer, Observable } from 'rxjs';
+import { timer, Observable, firstValueFrom } from 'rxjs';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
@@ -32,7 +32,7 @@ import { JwtParser } from '../helpers/jwt-parser';
 import { ChangePassword } from '../models/reset-pass.model';
 import { CreateUser } from './../models/user.model';
 import { ConfigService } from './config.service';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService } from '@jsverse/transloco';
 
 export interface LoginResponse {
   token: string;
@@ -96,18 +96,18 @@ export class AuthenticationService {
    *
    */
   checkLocal() {
-    return this.http
-      .post(
-        this.configSvc.apiUrl + 'auth/login/standalone',
-        JSON.stringify({
-          TzOffset: new Date().getTimezoneOffset().toString(),
-          // If InstallationMode isn't empty, use it. Otherwise, default to CSET.
-          Scope: this.configSvc.installationMode
-        }),
-        headers
-      )
-      .toPromise()
-      .then(
+    const obs = this.http.post(
+      this.configSvc.apiUrl + 'auth/login/standalone',
+      JSON.stringify({
+        TzOffset: new Date().getTimezoneOffset().toString(),
+        // If InstallationMode isn't empty, use it. Otherwise, default to CSET.
+        Scope: this.configSvc.installationMode
+      }),
+      headers
+    );
+    const prom = firstValueFrom(obs);
+
+    return prom.then(
         (response: LoginResponse) => {
 
           if (!response?.email) {
@@ -392,10 +392,10 @@ export class AuthenticationService {
    * Checks and sets the current user's cisa assessor workflow option.
    */
   configureCisaAssessorWorkflow(user) {
-    return this.configSvc
-      .getCisaAssessorWorkflow()
-      .toPromise()
-      .then((cisaAssessorWorkflowEnabled) => {
+    const obs = this.configSvc.getCisaAssessorWorkflow();
+    const prom = firstValueFrom(obs);
+
+    return prom.then((cisaAssessorWorkflowEnabled) => {
         if (cisaAssessorWorkflowEnabled) {
           return this.configSvc.enableCisaAssessorWorkflow().then(() => {
             return user;

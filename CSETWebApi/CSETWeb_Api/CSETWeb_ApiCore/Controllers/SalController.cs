@@ -14,14 +14,13 @@ using Microsoft.EntityFrameworkCore;
 using Nelibur.ObjectMapper;
 using System;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
+using CSETWebCore.Business.Authorization;
 using CSETWebCore.Interfaces.Helpers;
 using CSETWebCore.Interfaces.Standards;
-using SixLabors.ImageSharp.ColorSpaces;
 
 namespace CSETWebCore.Api.Controllers
-{
+{   [CsetAuthorize]
     [ApiController]
     public class SalController : ControllerBase
     {

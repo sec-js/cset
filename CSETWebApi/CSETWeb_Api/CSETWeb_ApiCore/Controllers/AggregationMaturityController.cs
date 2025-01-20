@@ -6,19 +6,27 @@
 //////////////////////////////// 
 using Microsoft.AspNetCore.Mvc;
 using CSETWebCore.Business.Aggregation;
+using CSETWebCore.Business.Authorization;
 using CSETWebCore.DataLayer.Model;
-using System.Linq;
-using System.Collections.Generic;
+using CSETWebCore.Interfaces.Helpers;
+
 
 namespace CSETWebCore.Api.Controllers
-{
+{   [CsetAuthorize]
     public class AggregationMaturityController : Controller
     {
         private CSETContext _context;
+        private readonly ITokenManager _tokenManager;
 
-        public AggregationMaturityController(CSETContext context)
+
+
+        /// <summary>
+        /// CTOR
+        /// </summary>
+        public AggregationMaturityController(ITokenManager tokenManager, CSETContext context)
         {
             _context = context;
+            _tokenManager = tokenManager;
 
         }
 
@@ -32,10 +40,15 @@ namespace CSETWebCore.Api.Controllers
         /// <returns></returns>
         [HttpGet]
         [Route("api/aggregation/analysis/maturity/compliance")]
-        public IActionResult GetComplianceByModelAndDomain([FromQuery] int aggregationId)
-        {
+        public IActionResult GetComplianceByModelAndDomain()
+        {   
+            var aggregationID = _tokenManager.PayloadInt("aggreg");
+            if (aggregationID == null)
+            {
+                return Ok();
+            }
             var amb = new AggregationMaturityBusiness(_context);
-            var resp = amb.GetMaturityModels(aggregationId);
+            var resp = amb.GetMaturityModelComplianceChart(aggregationID.Value);
 
             return Ok(resp);
         }
